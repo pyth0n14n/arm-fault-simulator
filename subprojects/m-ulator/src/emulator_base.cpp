@@ -8,9 +8,9 @@ using namespace mulator;
 
 Emulator::Emulator(Architecture arch) : m_decoder(arch)
 {
-    m_emulated_time     = 0;
-    m_cpu_state.time    = 0;
-    m_return_code       = ReturnCode::UNINITIALIZED;
+    m_emulated_time  = 0;
+    m_cpu_state.time = 0;
+    m_return_code    = ReturnCode::UNINITIALIZED;
 
     m_ram.bytes   = nullptr;
     m_flash.bytes = nullptr;
@@ -188,14 +188,15 @@ void Emulator::read_memory(u32 address, u8* buffer, u32 len) const
     if (m_flash.contains(address, len))
     {
         std::memcpy(buffer, m_flash.get(address), len);
-        return;
     }
-    if (m_ram.contains(address, len))
+    else if (m_ram.contains(address, len))
     {
         std::memcpy(buffer, m_ram.get(address), len);
-        return;
     }
-    throw std::runtime_error("INVALID_MEMORY_ACCESS");
+    else
+    {
+        throw std::runtime_error("INVALID_MEMORY_ACCESS");
+    }
 }
 
 void Emulator::write_memory(u32 dst_address, const u8* buffer, u32 len)
@@ -203,14 +204,15 @@ void Emulator::write_memory(u32 dst_address, const u8* buffer, u32 len)
     if (m_flash.contains(dst_address, len))
     {
         std::memcpy(m_flash.get(dst_address), buffer, len);
-        return;
     }
-    if (m_ram.contains(dst_address, len))
+    else if (m_ram.contains(dst_address, len))
     {
         std::memcpy(m_ram.get(dst_address), buffer, len);
-        return;
     }
-    throw std::runtime_error("INVALID_MEMORY_ACCESS");
+    else
+    {
+        throw std::runtime_error("INVALID_MEMORY_ACCESS");
+    }
 }
 
 ReturnCode Emulator::emulate(u64 max_instructions)

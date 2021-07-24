@@ -182,6 +182,8 @@ void FaultSimulator::simulate_instruction_fault(ThreadContext& thread_ctx, u32 r
 
             active_model->apply(fault);
 
+            thread_ctx.num_fault_injections++;
+
             if (std::memcmp(fault.original_instruction, fault.manipulated_instruction, fault.instr_size) == 0)
             {
                 continue;
@@ -334,6 +336,8 @@ void FaultSimulator::simulate_permanent_instruction_fault(ThreadContext& thread_
             }
 
             active_model->apply(fault);
+
+            thread_ctx.num_fault_injections++;
 
             if (std::memcmp(fault.original_instruction, fault.manipulated_instruction, fault.instr_size) == 0)
             {

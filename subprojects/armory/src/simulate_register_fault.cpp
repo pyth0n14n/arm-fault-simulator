@@ -210,6 +210,8 @@ void FaultSimulator::simulate_register_fault(ThreadContext& thread_ctx, u32 recu
 
                 active_model->apply(fault);
 
+                thread_ctx.num_fault_injections++;
+
                 if (fault.original_value == fault.manipulated_value)
                 {
                     continue;
@@ -392,6 +394,8 @@ void FaultSimulator::simulate_permanent_register_fault(ThreadContext& thread_ctx
             }
 
             active_model->apply(fault);
+
+            thread_ctx.num_fault_injections++;
 
             FaultCombination new_chain(current_chain);
             new_chain.register_faults.push_back(fault);

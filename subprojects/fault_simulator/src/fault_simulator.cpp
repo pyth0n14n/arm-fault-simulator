@@ -126,6 +126,7 @@ namespace fault_simulator
             std::cout << " (" << failed_faults.size() << " not verifiable)";
         }
         std::cout << std::endl;
+        std::cout << "Injected " << std::dec << simulator.get_number_of_injected_faults() << " faults" << std::endl;
 
         double seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0;
         std::cout << "Elapsed time: " << seconds << " seconds" << std::endl << std::endl;
@@ -193,16 +194,18 @@ namespace fault_simulator
             }
             else if (args[i] == "--halt")
             {
-                auto symbol                   = args[++i];
-                auto addr                     = to_int(args[++i]);
+                auto symbol                       = args[++i];
+                auto addr                         = to_int(args[++i]);
                 config.halt_address_symbols[addr] = symbol;
+                config.halt_addresses[symbol]     = addr;
                 config.faulting_context.halting_points.push_back(addr);
             }
             else if (args[i] == "--symbol")
             {
-                auto symbol       = args[++i];
-                auto addr         = to_int(args[++i]);
-                config.symbols[addr] = symbol;
+                auto symbol                     = args[++i];
+                auto addr                       = to_int(args[++i]);
+                config.symbols[addr]            = symbol;
+                config.symbol_addresses[symbol] = addr;
             }
             else if (args[i] == "--section")
             {

@@ -52,6 +52,11 @@ void FaultSimulator::set_number_of_threads(u32 threads)
     m_num_threads = threads;
 }
 
+u64 FaultSimulator::get_number_of_injected_faults()
+{
+    return m_num_fault_injections;
+}
+
 std::vector<FaultCombination> FaultSimulator::simulate_faults(const Emulator& main_emulator, std::vector<std::pair<const FaultModel*, u32>> fault_models, u32 max_simulatenous_faults)
 {
     // sort fault models: pull instruction fault models to the front
@@ -83,7 +88,7 @@ std::vector<FaultCombination> FaultSimulator::simulate_faults(const Emulator& ma
     std::cerr << "Using " << std::dec << num_threads << " threads" << std::endl;
 
     // now, process all fault models
-
+    m_num_fault_injections = 0;
     std::map<std::vector<u32>, std::vector<FaultCombination>> memorized_faults;
 
     for (u32 model_index = 0; model_index < models_to_inject.size(); ++model_index)
@@ -371,6 +376,7 @@ void FaultSimulator::simulate(const Emulator& main_emulator)
 
     ThreadContext thread_ctx(main_emulator);
     thread_ctx.exploitability_model = nullptr;
+    thread_ctx.num_fault_injections = 0;
 
     std::tuple<FaultSimulator*, ThreadContext*> hook_user_data(this, &thread_ctx);
 
@@ -393,6 +399,7 @@ void FaultSimulator::simulate(const Emulator& main_emulator)
     {
         std::lock_guard<std::mutex> lock(m_progress_mutex);
         m_new_exploitable_faults.insert(m_new_exploitable_faults.end(), thread_ctx.new_faults.begin(), thread_ctx.new_faults.end());
+        m_num_fault_injections += thread_ctx.num_fault_injections;
     }
 }
 

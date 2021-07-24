@@ -19,9 +19,11 @@ namespace fault_simulator
         u32 start_address;
         std::vector<CodeSection> binary;
         std::unordered_map<u32, std::string> halt_address_symbols;
+        std::unordered_map<std::string, u32> halt_addresses;
         std::unordered_map<u32, std::string> symbols;
+        std::unordered_map<std::string, u32> symbol_addresses;
 
         armory::Context faulting_context;
         u32 num_threads;
     };
-} // namespace fault_simulator
+}    // namespace fault_simulator

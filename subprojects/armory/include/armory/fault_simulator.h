@@ -55,6 +55,11 @@ namespace armory
          */
         std::vector<FaultCombination> simulate_faults(const Emulator& emulator, std::vector<std::pair<const FaultModel*, u32>> fault_models, u32 max_simulatenous_faults);
 
+        /*
+         * Gets the number of faults that were injected during the last call to 'simulate_faults'.
+         */
+        u64 get_number_of_injected_faults();
+
     private:
         struct ThreadContext
         {
@@ -69,6 +74,7 @@ namespace armory
             std::unique_ptr<ExploitabilityModel> exploitability_model;
             std::vector<std::unique_ptr<Snapshot>> snapshots;
             std::vector<FaultCombination> new_faults;
+            u64 num_fault_injections;
         };
 
         void gather_faultable_instructions(const Emulator& main_emulator);
@@ -116,5 +122,7 @@ namespace armory
         std::unordered_map<std::size_t, std::vector<FaultCombination>> m_known_exploitable_faults;
         std::vector<size_t> m_known_exploitable_fault_hashes;
         std::vector<FaultCombination> m_new_exploitable_faults;
+
+        u64 m_num_fault_injections;
     };
 }    // namespace armory

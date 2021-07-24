@@ -1,6 +1,6 @@
-project('ARMORY Example', 'cpp',
+project('ARMORY_EXAMPLE', 'cpp',
  version : '0.1',
- default_options : ['warning_level=3', 'cpp_std=c++17'])
+ default_options : ['warning_level=3', 'cpp_std=c++17', 'b_lto=true'])
 
 message(get_option('buildtype'), 'build')
 

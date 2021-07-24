@@ -1,6 +1,7 @@
 #include "m-ulator/arm_functions.h"
 #include "m-ulator/emulator.h"
 #include "m-ulator/mnemonics.h"
+
 #include <cmath>
 
 // #include <iomanip>
@@ -78,30 +79,30 @@ bool Emulator::evaluate_condition(const Instruction& instr)
     // Evaluate base condition.
     switch (condition >> 1)
     {
-    case 0b000:
-        result = cpu.psr.Z;
-        break; // EQ or NE
-    case 0b001:
-        result = cpu.psr.C;
-        break; // CS or CC
-    case 0b010:
-        result = cpu.psr.N;
-        break; // MI or PL
-    case 0b011:
-        result = cpu.psr.V;
-        break; // VS or VC
-    case 0b100:
-        result = cpu.psr.C && !cpu.psr.Z;
-        break; // HI or LS
-    case 0b101:
-        result = cpu.psr.N == cpu.psr.V;
-        break; // GE or LT
-    case 0b110:
-        result = cpu.psr.N == cpu.psr.V && !cpu.psr.Z;
-        break; // GT or LE
-    case 0b111:
-        result = true;
-        break; // AL, condition flag values in the set '111x' indicate the instruction is always executed.
+        case 0b000:
+            result = cpu.psr.Z;
+            break;    // EQ or NE
+        case 0b001:
+            result = cpu.psr.C;
+            break;    // CS or CC
+        case 0b010:
+            result = cpu.psr.N;
+            break;    // MI or PL
+        case 0b011:
+            result = cpu.psr.V;
+            break;    // VS or VC
+        case 0b100:
+            result = cpu.psr.C && !cpu.psr.Z;
+            break;    // HI or LS
+        case 0b101:
+            result = cpu.psr.N == cpu.psr.V;
+            break;    // GE or LT
+        case 0b110:
+            result = cpu.psr.N == cpu.psr.V && !cpu.psr.Z;
+            break;    // GT or LE
+        case 0b111:
+            result = true;
+            break;    // AL, condition flag values in the set '111x' indicate the instruction is always executed.
     }
 
     // Otherwise, invert condition if necessary.
@@ -167,9 +168,9 @@ i32 Emulator::get_execution_priority() const
 
 bool Emulator::execute(const Instruction& instr)
 {
-    m_psr_updated = false;
+    m_psr_updated             = false;
     bool instruction_executed = false;
-    bool increment_pc = true;
+    bool increment_pc         = true;
     if (instr.name == Mnemonic::ADC)
     {
         if (evaluate_condition(instr))
@@ -219,7 +220,7 @@ bool Emulator::execute(const Instruction& instr)
             if (instr.Rd == Register::PC)
             {
                 cpu.registers[PC] = result & ~((u32)1);
-                increment_pc = false;
+                increment_pc      = false;
             }
             else
             {
@@ -246,7 +247,7 @@ bool Emulator::execute(const Instruction& instr)
             u8 carry;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg               = read_register_internal(instr.Rm);
                 auto [shift_ok, s, c] = arm_functions::shift_c(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = s;
@@ -279,7 +280,7 @@ bool Emulator::execute(const Instruction& instr)
             {
                 result = reg | value;
             }
-            else // if (instr.name == Mnemonic::ORN)
+            else    // if (instr.name == Mnemonic::ORN)
             {
                 result = reg | ~value;
             }
@@ -359,8 +360,8 @@ bool Emulator::execute(const Instruction& instr)
         ADVANCE_PC
         return instruction_executed;
     }
-    else if (
-        instr.name == Mnemonic::LDR || instr.name == Mnemonic::LDRT || instr.name == Mnemonic::LDRH || instr.name == Mnemonic::LDRHT || instr.name == Mnemonic::LDRB || instr.name == Mnemonic::LDRBT || instr.name == Mnemonic::LDRSH || instr.name == Mnemonic::LDRSHT || instr.name == Mnemonic::LDRSB || instr.name == Mnemonic::LDRSBT)
+    else if (instr.name == Mnemonic::LDR || instr.name == Mnemonic::LDRT || instr.name == Mnemonic::LDRH || instr.name == Mnemonic::LDRHT || instr.name == Mnemonic::LDRB
+             || instr.name == Mnemonic::LDRBT || instr.name == Mnemonic::LDRSH || instr.name == Mnemonic::LDRSHT || instr.name == Mnemonic::LDRSB || instr.name == Mnemonic::LDRSBT)
     {
         if (evaluate_condition(instr))
         {
@@ -459,7 +460,7 @@ bool Emulator::execute(const Instruction& instr)
             u32 value;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg                  = read_register_internal(instr.Rm);
                 auto [shift_ok, shifted] = arm_functions::shift(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = shifted;
@@ -468,7 +469,7 @@ bool Emulator::execute(const Instruction& instr)
             {
                 value = instr.imm;
             }
-            u32 reg = read_register_internal(instr.Rn);
+            u32 reg                        = read_register_internal(instr.Rn);
             auto [result, carry, overflow] = arm_functions::add_with_carry(reg, ~value, cpu.psr.C);
             write_register_internal(instr.Rd, result);
             if (instr.flags.S)
@@ -484,7 +485,8 @@ bool Emulator::execute(const Instruction& instr)
         ADVANCE_PC
         return instruction_executed;
     }
-    else if (instr.name == Mnemonic::STR || instr.name == Mnemonic::STRT || instr.name == Mnemonic::STRH || instr.name == Mnemonic::STRHT || instr.name == Mnemonic::STRB || instr.name == Mnemonic::STRBT)
+    else if (instr.name == Mnemonic::STR || instr.name == Mnemonic::STRT || instr.name == Mnemonic::STRH || instr.name == Mnemonic::STRHT || instr.name == Mnemonic::STRB
+             || instr.name == Mnemonic::STRBT)
     {
         if (evaluate_condition(instr))
         {
@@ -543,7 +545,7 @@ bool Emulator::execute(const Instruction& instr)
             u32 value;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg                  = read_register_internal(instr.Rm);
                 auto [shift_ok, shifted] = arm_functions::shift(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = shifted;
@@ -578,7 +580,7 @@ bool Emulator::execute(const Instruction& instr)
             u32 value;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg                  = read_register_internal(instr.Rm);
                 auto [shift_ok, shifted] = arm_functions::shift(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = shifted;
@@ -587,7 +589,7 @@ bool Emulator::execute(const Instruction& instr)
             {
                 value = instr.imm;
             }
-            u32 reg = read_register_internal(instr.Rn);
+            u32 reg                        = read_register_internal(instr.Rn);
             auto [result, carry, overflow] = arm_functions::add_with_carry(~reg, value, 1);
             write_register_internal(instr.Rd, result);
             if (instr.flags.S)
@@ -610,7 +612,7 @@ bool Emulator::execute(const Instruction& instr)
             u32 value;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg                  = read_register_internal(instr.Rm);
                 auto [shift_ok, shifted] = arm_functions::shift(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = shifted;
@@ -619,12 +621,12 @@ bool Emulator::execute(const Instruction& instr)
             {
                 value = instr.imm;
             }
-            u32 reg = read_register_internal(instr.Rn);
+            u32 reg                        = read_register_internal(instr.Rn);
             auto [result, carry, overflow] = arm_functions::add_with_carry(reg, value, 0);
-            cpu.psr.N = result >> 31;
-            cpu.psr.Z = (result == 0);
-            cpu.psr.C = carry;
-            cpu.psr.V = overflow;
+            cpu.psr.N                      = result >> 31;
+            cpu.psr.Z                      = (result == 0);
+            cpu.psr.C                      = carry;
+            cpu.psr.V                      = overflow;
             UPDATE_PSR
             instruction_executed = true;
         }
@@ -638,7 +640,7 @@ bool Emulator::execute(const Instruction& instr)
             u32 value = 0;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg                  = read_register_internal(instr.Rm);
                 auto [shift_ok, shifted] = arm_functions::shift(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = shifted;
@@ -674,7 +676,7 @@ bool Emulator::execute(const Instruction& instr)
             else
             {
                 u32 value = 0;
-                u8 carry = cpu.psr.C;
+                u8 carry  = cpu.psr.C;
                 if (instr.name == Mnemonic::MOVW)
                 {
                     value = instr.imm;
@@ -682,12 +684,12 @@ bool Emulator::execute(const Instruction& instr)
                 else if (instr.name == Mnemonic::MOVT)
                 {
                     u32 reg = read_register_internal(instr.Rd);
-                    value = (reg & 0xFFFF) | (instr.imm << 16);
+                    value   = (reg & 0xFFFF) | (instr.imm << 16);
                 }
                 else if (instr.uses_only_registers())
                 {
                     u32 reg = read_register_internal(instr.Rm);
-                    value = reg;
+                    value   = reg;
                 }
                 else
                 {
@@ -718,7 +720,7 @@ bool Emulator::execute(const Instruction& instr)
             u8 carry;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg               = read_register_internal(instr.Rm);
                 auto [shift_ok, v, c] = arm_functions::shift_c(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = v;
@@ -769,7 +771,7 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 val = read_register_internal(instr.Rm);
+            u32 val    = read_register_internal(instr.Rm);
             u32 result = ((val & 0xFF) << 24) | ((val & 0xFF00) << 8) | ((val & 0xFF0000) >> 8) | ((val >> 24) & 0xFF);
             write_register_internal(instr.Rd, result);
             instruction_executed = true;
@@ -781,7 +783,7 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 val = read_register_internal(instr.Rm);
+            u32 val    = read_register_internal(instr.Rm);
             u32 result = ((val & 0xFF) << 8) | ((val & 0xFF00) >> 8) | ((val & 0xFF0000) << 8) | ((val & 0xFF000000) >> 8);
             write_register_internal(instr.Rd, result);
             instruction_executed = true;
@@ -793,7 +795,7 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 val = read_register_internal(instr.Rm);
+            u32 val    = read_register_internal(instr.Rm);
             u32 result = arm_functions::sign_extend(((val & 0xFF) << 8) | ((val & 0xFF00) >> 8), 16);
             write_register_internal(instr.Rd, result);
             instruction_executed = true;
@@ -805,7 +807,7 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 reg = read_register_internal(instr.Rm);
+            u32 reg                  = read_register_internal(instr.Rm);
             auto [shift_ok, rotated] = arm_functions::ROR(reg, instr.shift_amount);
             CHECK_SHIFT(shift_ok);
             if (instr.name == Mnemonic::SXTB)
@@ -820,7 +822,7 @@ bool Emulator::execute(const Instruction& instr)
             {
                 write_register_internal(instr.Rd, rotated & 0xFF);
             }
-            else // UXTH
+            else    // UXTH
             {
                 write_register_internal(instr.Rd, rotated & 0xFFFF);
             }
@@ -837,7 +839,7 @@ bool Emulator::execute(const Instruction& instr)
             u8 carry;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg               = read_register_internal(instr.Rm);
                 auto [shift_ok, s, c] = arm_functions::shift_c(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = s;
@@ -850,11 +852,11 @@ bool Emulator::execute(const Instruction& instr)
                 value = s;
                 carry = c;
             }
-            u32 reg = read_register_internal(instr.Rn);
+            u32 reg    = read_register_internal(instr.Rn);
             u32 result = reg & value;
-            cpu.psr.N = result >> 31;
-            cpu.psr.Z = (result == 0);
-            cpu.psr.C = carry;
+            cpu.psr.N  = result >> 31;
+            cpu.psr.Z  = (result == 0);
+            cpu.psr.C  = carry;
             UPDATE_PSR
             instruction_executed = true;
         }
@@ -865,7 +867,7 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 reg = read_register_internal(PC);
+            u32 reg   = read_register_internal(PC);
             u32 value = arm_functions::align(reg, 4);
             value += (instr.flags.add) ? instr.imm : -instr.imm;
             write_register_internal(instr.Rd, value);
@@ -957,7 +959,7 @@ bool Emulator::execute(const Instruction& instr)
             write_register_internal(LR, (read_register_internal(PC) - 2) | 1);
             blx_write_PC(read_register_internal(instr.Rm));
             instruction_executed = true;
-            increment_pc = false;
+            increment_pc         = false;
         }
         ADVANCE_PC
         return instruction_executed;
@@ -969,7 +971,7 @@ bool Emulator::execute(const Instruction& instr)
             u32 reg = read_register_internal(instr.Rm);
             bx_write_PC(reg);
             instruction_executed = true;
-            increment_pc = false;
+            increment_pc         = false;
         }
         ADVANCE_PC
         return instruction_executed;
@@ -981,7 +983,7 @@ bool Emulator::execute(const Instruction& instr)
             u32 reg = read_register_internal(PC);
             branch_write_PC(reg + instr.imm);
             instruction_executed = true;
-            increment_pc = false;
+            increment_pc         = false;
         }
         ADVANCE_PC
         return instruction_executed;
@@ -995,7 +997,7 @@ bool Emulator::execute(const Instruction& instr)
             branch_write_PC(reg + instr.imm);
 
             instruction_executed = true;
-            increment_pc = false;
+            increment_pc         = false;
         }
         ADVANCE_PC
         return instruction_executed;
@@ -1075,7 +1077,9 @@ bool Emulator::execute(const Instruction& instr)
         instruction_executed = true;
         return instruction_executed;
     }
-    else if (instr.name == Mnemonic::NOP || instr.name == Mnemonic::SEV || instr.name == Mnemonic::DSB || instr.name == Mnemonic::ISB || instr.name == Mnemonic::DMB || instr.name == Mnemonic::CSDB || instr.name == Mnemonic::DBG || instr.name == Mnemonic::CLREX || instr.name == Mnemonic::SSBB || instr.name == Mnemonic::PSSBB || instr.name == Mnemonic::PLD || instr.name == Mnemonic::PLI)
+    else if (instr.name == Mnemonic::NOP || instr.name == Mnemonic::SEV || instr.name == Mnemonic::DSB || instr.name == Mnemonic::ISB || instr.name == Mnemonic::DMB || instr.name == Mnemonic::CSDB
+             || instr.name == Mnemonic::DBG || instr.name == Mnemonic::CLREX || instr.name == Mnemonic::SSBB || instr.name == Mnemonic::PSSBB || instr.name == Mnemonic::PLD
+             || instr.name == Mnemonic::PLI)
     {
         ADVANCE_PC
         instruction_executed = true;
@@ -1165,7 +1169,7 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 address = read_register_internal(instr.Rn);
+            u32 address        = read_register_internal(instr.Rn);
             u32 offset_address = address + ((instr.flags.add) ? instr.imm : -instr.imm);
             if (instr.flags.index)
             {
@@ -1196,7 +1200,7 @@ bool Emulator::execute(const Instruction& instr)
         {
             u32 address = read_register_internal(instr.Rn);
 
-            if (instr.operand_type == OperandType::RRI) // LDRD (literal)
+            if (instr.operand_type == OperandType::RRI)    // LDRD (literal)
             {
                 address = arm_functions::align(address, 4);
             }
@@ -1311,7 +1315,7 @@ bool Emulator::execute(const Instruction& instr)
             {
                 auto [shift_ok, shifted] = arm_functions::LSL(reg2, 1);
                 CHECK_SHIFT(shift_ok);
-                u32 address = reg1 + shifted;
+                u32 address           = reg1 + shifted;
                 bool ignore_alignment = _1BIT(cpu.CCR >> 3) == 0;
                 if (!ignore_alignment && arm_functions::align(address, 2) != address)
                 {
@@ -1339,7 +1343,7 @@ bool Emulator::execute(const Instruction& instr)
             u8 carry;
             if (instr.uses_only_registers())
             {
-                u32 reg = read_register_internal(instr.Rm);
+                u32 reg               = read_register_internal(instr.Rm);
                 auto [shift_ok, s, c] = arm_functions::shift_c(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
                 CHECK_SHIFT(shift_ok);
                 value = s;
@@ -1353,7 +1357,7 @@ bool Emulator::execute(const Instruction& instr)
                 carry = c;
             }
 
-            u32 reg = read_register_internal(instr.Rn);
+            u32 reg    = read_register_internal(instr.Rn);
             u32 result = reg ^ value;
 
             cpu.psr.N = result >> 31;
@@ -1370,7 +1374,7 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 reg = read_register_internal(instr.Rn);
+            u32 reg                = read_register_internal(instr.Rn);
             auto [shift_ok, value] = arm_functions::shift(reg, instr.shift_type, instr.shift_amount, cpu.psr.C);
             CHECK_SHIFT(shift_ok);
             u32 result;
@@ -1378,14 +1382,14 @@ bool Emulator::execute(const Instruction& instr)
             if (instr.name == Mnemonic::SSAT)
             {
                 auto [r, s] = arm_functions::signed_sat_Q(value, instr.imm);
-                sat = s;
-                result = arm_functions::sign_extend(r, 5);
+                sat         = s;
+                result      = arm_functions::sign_extend(r, 5);
             }
             else
             {
                 auto [r, s] = arm_functions::unsigned_sat_Q(value, instr.imm);
-                sat = s;
-                result = r;
+                sat         = s;
+                result      = r;
             }
             write_register_internal(instr.Rd, result);
             if (sat)
@@ -1431,13 +1435,13 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 lsb = instr.imm;
+            u32 lsb   = instr.imm;
             u32 width = instr.imm2;
-            u32 msb = lsb + width;
+            u32 msb   = lsb + width;
 
             u32 old = read_register_internal(instr.Rd);
 
-            u32 low = 0;
+            u32 low  = 0;
             u32 high = 0;
             if (lsb > 0)
                 low = old & (0xFFFFFFFF >> (32 - lsb));
@@ -1463,7 +1467,7 @@ bool Emulator::execute(const Instruction& instr)
         if (evaluate_condition(instr))
         {
             u32 result = 0;
-            u32 val = read_register_internal(instr.Rm);
+            u32 val    = read_register_internal(instr.Rm);
             // count leading zeros
             for (u32 i = 0; i < 32; ++i)
             {
@@ -1484,8 +1488,8 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 op1 = read_register_internal(instr.Rn);
-            u32 op2 = read_register_internal(instr.Rm);
+            u32 op1    = read_register_internal(instr.Rn);
+            u32 op2    = read_register_internal(instr.Rm);
             u32 addend = read_register_internal(instr.Ra);
             u32 result = op1 * op2;
             if (instr.name == Mnemonic::MLA)
@@ -1512,10 +1516,10 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 reg1 = read_register_internal(instr.Rn);
-            u32 reg2 = read_register_internal(instr.Rm);
-            i64 op1 = (i32)reg1;
-            i64 op2 = (i32)reg2;
+            u32 reg1   = read_register_internal(instr.Rn);
+            u32 reg2   = read_register_internal(instr.Rm);
+            i64 op1    = (i32)reg1;
+            i64 op2    = (i32)reg2;
             i64 result = op1 * op2;
             write_register_internal(instr.Rd, (u32)(result >> 32));
             write_register_internal(instr.Ra, (u32)result);
@@ -1528,10 +1532,10 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 reg1 = read_register_internal(instr.Rn);
-            u32 reg2 = read_register_internal(instr.Rm);
-            u64 op1 = reg1;
-            u64 op2 = reg2;
+            u32 reg1   = read_register_internal(instr.Rn);
+            u32 reg2   = read_register_internal(instr.Rm);
+            u64 op1    = reg1;
+            u64 op2    = reg2;
             u64 result = op1 * op2;
             write_register_internal(instr.Rd, (u32)(result >> 32));
             write_register_internal(instr.Ra, (u32)result);
@@ -1544,11 +1548,11 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 reg1 = read_register_internal(instr.Rn);
-            u32 reg2 = read_register_internal(instr.Rm);
-            i32 op1 = reg1;
-            i32 op2 = reg2;
-            i32 result = 0;
+            u32 reg1              = read_register_internal(instr.Rn);
+            u32 reg2              = read_register_internal(instr.Rm);
+            i32 op1               = reg1;
+            i32 op2               = reg2;
+            i32 result            = 0;
             bool div_by_zero_trap = _1BIT(cpu.CCR >> 4) == 1;
             if (op2 == 0)
             {
@@ -1572,9 +1576,9 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 op1 = read_register_internal(instr.Rn);
-            u32 op2 = read_register_internal(instr.Rm);
-            u32 result = 0;
+            u32 op1               = read_register_internal(instr.Rn);
+            u32 op2               = read_register_internal(instr.Rm);
+            u32 result            = 0;
             bool div_by_zero_trap = _1BIT(cpu.CCR >> 4) == 1;
             if (op2 == 0)
             {
@@ -1598,13 +1602,13 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 reg1 = read_register_internal(instr.Rn);
-            u32 reg2 = read_register_internal(instr.Rm);
-            u32 reg3 = read_register_internal(instr.Rd);
-            u32 reg4 = read_register_internal(instr.Ra);
-            i64 op1 = (i32)reg1;
-            i64 op2 = (i32)reg2;
-            i64 add = ((i64)reg3 << 32) | reg4;
+            u32 reg1   = read_register_internal(instr.Rn);
+            u32 reg2   = read_register_internal(instr.Rm);
+            u32 reg3   = read_register_internal(instr.Rd);
+            u32 reg4   = read_register_internal(instr.Ra);
+            i64 op1    = (i32)reg1;
+            i64 op2    = (i32)reg2;
+            i64 add    = ((i64)reg3 << 32) | reg4;
             i64 result = op1 * op2 + add;
             write_register_internal(instr.Rd, (u32)(result >> 32));
             write_register_internal(instr.Ra, (u32)result);
@@ -1617,13 +1621,13 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            u32 reg1 = read_register_internal(instr.Rn);
-            u32 reg2 = read_register_internal(instr.Rm);
-            u32 reg3 = read_register_internal(instr.Rd);
-            u32 reg4 = read_register_internal(instr.Ra);
-            u64 op1 = (i32)reg1;
-            u64 op2 = (i32)reg2;
-            u64 add = ((u64)reg3 << 32) | reg4;
+            u32 reg1   = read_register_internal(instr.Rn);
+            u32 reg2   = read_register_internal(instr.Rm);
+            u32 reg3   = read_register_internal(instr.Rd);
+            u32 reg4   = read_register_internal(instr.Ra);
+            u64 op1    = reg1;
+            u64 op2    = reg2;
+            u64 add    = ((u64)reg3 << 32) | reg4;
             u64 result = op1 * op2 + add;
             write_register_internal(instr.Rd, (u32)(result >> 32));
             write_register_internal(instr.Ra, (u32)result);
@@ -1636,8 +1640,8 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (in_priviledged_mode())
         {
-            bool enable = _1BIT(instr.imm >> 4) == 0;
-            bool affectPRI = _1BIT(instr.imm >> 1) == 1;
+            bool enable      = _1BIT(instr.imm >> 4) == 0;
+            bool affectPRI   = _1BIT(instr.imm >> 1) == 1;
             bool affectFAULT = _1BIT(instr.imm) == 1;
             if (enable)
             {
@@ -1662,9 +1666,9 @@ bool Emulator::execute(const Instruction& instr)
     {
         if (evaluate_condition(instr))
         {
-            auto psr = read_register_internal(Register::PSR);
+            auto psr  = read_register_internal(Register::PSR);
             u32 value = 0;
-            u8 tmp = _5BIT(instr.imm >> 3);
+            u8 tmp    = _5BIT(instr.imm >> 3);
             if (tmp == 0b00000)
             {
                 if (_1BIT(instr.imm) == 1)
@@ -1735,9 +1739,9 @@ bool Emulator::execute(const Instruction& instr)
         if (evaluate_condition(instr))
         {
             auto value = read_register_internal(instr.Rn);
-            auto psr = read_register_internal(Register::PSR);
-            u8 tmp = _5BIT(instr.imm >> 3);
-            u8 mask = _2BIT(instr.imm >> 8);
+            auto psr   = read_register_internal(Register::PSR);
+            u8 tmp     = _5BIT(instr.imm >> 3);
+            u8 mask    = _2BIT(instr.imm >> 8);
             if (tmp == 0b00000)
             {
                 if (_1BIT(instr.imm >> 2) == 0)

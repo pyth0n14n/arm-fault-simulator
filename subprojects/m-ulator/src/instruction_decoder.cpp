@@ -37,8 +37,8 @@ Architecture InstructionDecoder::get_architecture() const
 u8 InstructionDecoder::get_instruction_size(const u8* bytes)
 {
     u16* instruction_stream = (u16*)bytes;
-    u16 encoding = instruction_stream[0];
-    u8 mask = _5BIT(encoding >> 11);
+    u16 encoding            = instruction_stream[0];
+    u8 mask                 = _5BIT(encoding >> 11);
     if (mask == 0b11101 || mask == 0b11110 || mask == 0b11111)
     {
         return 4;
@@ -65,11 +65,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
 
     if (instr.size == 2)
     {
-        u16 encoding = instruction_stream[0];
+        u16 encoding   = instruction_stream[0];
         instr.encoding = encoding;
 
         // 16-bit thumb code
-        u8 opcode = encoding >> 10;
+        u8 opcode   = encoding >> 10;
         u8 opcode_5 = opcode >> 1;
         u8 opcode_4 = opcode >> 2;
         u8 opcode_3 = opcode >> 3;
@@ -78,31 +78,31 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         if ((encoding >> 6) == 0)
         {
             // MOVS on page A6-140
-            instr.name = Mnemonic::MOV;
-            instr.flags.S = true;
-            instr.Rd = (Register)(_3BIT(encoding));
-            instr.Rm = (Register)(_3BIT(encoding >> 3));
+            instr.name         = Mnemonic::MOV;
+            instr.flags.S      = true;
+            instr.Rd           = (Register)(_3BIT(encoding));
+            instr.Rm           = (Register)(_3BIT(encoding >> 3));
             instr.operand_type = OperandType::RR;
             return {ReturnCode::OK, instr};
         }
         else if (opcode_2 == 0b00)
         {
             // Shift (immediate), add, subtract, move, and compare on page A5-79
-            opcode = _5BIT(encoding >> 9);
+            opcode   = _5BIT(encoding >> 9);
             opcode_3 = opcode >> 2;
 
             if (opcode_3 == 0b000)
             {
                 // LSL (immediate) on page A6-135
-                instr.name = Mnemonic::LSL;
+                instr.name    = Mnemonic::LSL;
                 instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                u32 imm5 = _5BIT(encoding >> 6);
+                instr.Rd      = (Register)(_3BIT(encoding));
+                instr.Rm      = (Register)(_3BIT(encoding >> 3));
+                u32 imm5      = _5BIT(encoding >> 6);
 
                 auto [shift_type, shift_amount] = arm_functions::decode_imm_shift(0b00, imm5);
-                instr.shift_type = shift_type;
-                instr.shift_amount = shift_amount;
+                instr.shift_type                = shift_type;
+                instr.shift_amount              = shift_amount;
 
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
@@ -110,15 +110,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode_3 == 0b001)
             {
                 // LSR (immediate) on page A6-137
-                instr.name = Mnemonic::LSR;
+                instr.name    = Mnemonic::LSR;
                 instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                u32 imm5 = _5BIT(encoding >> 6);
+                instr.Rd      = (Register)(_3BIT(encoding));
+                instr.Rm      = (Register)(_3BIT(encoding >> 3));
+                u32 imm5      = _5BIT(encoding >> 6);
 
                 auto [shift_type, shift_amount] = arm_functions::decode_imm_shift(0b01, imm5);
-                instr.shift_type = shift_type;
-                instr.shift_amount = shift_amount;
+                instr.shift_type                = shift_type;
+                instr.shift_amount              = shift_amount;
 
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
@@ -126,15 +126,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode_3 == 0b010)
             {
                 // ASR (immediate) on page A6-108
-                instr.name = Mnemonic::ASR;
+                instr.name    = Mnemonic::ASR;
                 instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                u32 imm5 = _5BIT(encoding >> 6);
+                instr.Rd      = (Register)(_3BIT(encoding));
+                instr.Rm      = (Register)(_3BIT(encoding >> 3));
+                u32 imm5      = _5BIT(encoding >> 6);
 
                 auto [shift_type, shift_amount] = arm_functions::decode_imm_shift(0b10, imm5);
-                instr.shift_type = shift_type;
-                instr.shift_amount = shift_amount;
+                instr.shift_type                = shift_type;
+                instr.shift_amount              = shift_amount;
 
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
@@ -142,84 +142,84 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode == 0b01100)
             {
                 // ADD (register) on page A6-102
-                instr.name = Mnemonic::ADD;
-                instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
+                instr.name         = Mnemonic::ADD;
+                instr.flags.S      = !in_IT_block;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b01101)
             {
                 // SUB (register) on page A6-165
-                instr.name = Mnemonic::SUB;
-                instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
+                instr.name         = Mnemonic::SUB;
+                instr.flags.S      = !in_IT_block;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b01110)
             {
                 // Add 3-bit immediate ADD (immediate) on page A6-101
-                instr.name = Mnemonic::ADD;
-                instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = _3BIT(encoding >> 6);
+                instr.name         = Mnemonic::ADD;
+                instr.flags.S      = !in_IT_block;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = _3BIT(encoding >> 6);
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b01111)
             {
                 // Subtract 3-bit immediate SUB (immediate) on page A6-164
-                instr.name = Mnemonic::SUB;
-                instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = _3BIT(encoding >> 6);
+                instr.name         = Mnemonic::SUB;
+                instr.flags.S      = !in_IT_block;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = _3BIT(encoding >> 6);
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_3 == 0b100)
             {
                 // MOV (immediate) on page A6-139
-                instr.name = Mnemonic::MOV;
-                instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding >> 8));
-                instr.imm = _8BIT(encoding);
+                instr.name         = Mnemonic::MOV;
+                instr.flags.S      = !in_IT_block;
+                instr.Rd           = (Register)(_3BIT(encoding >> 8));
+                instr.imm          = _8BIT(encoding);
                 instr.operand_type = OperandType::RI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_3 == 0b101)
             {
                 // CMP (immediate) on page A6-117
-                instr.name = Mnemonic::CMP;
-                instr.Rn = (Register)(_3BIT(encoding >> 8));
-                instr.imm = _8BIT(encoding);
+                instr.name         = Mnemonic::CMP;
+                instr.Rn           = (Register)(_3BIT(encoding >> 8));
+                instr.imm          = _8BIT(encoding);
                 instr.operand_type = OperandType::RI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_3 == 0b110)
             {
                 // Add 8-bit immediate ADD (immediate) on page A6-101
-                instr.name = Mnemonic::ADD;
+                instr.name    = Mnemonic::ADD;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding >> 8));
-                instr.imm = _8BIT(encoding);
-                instr.operand_type = OperandType::RI;
+                instr.imm           = _8BIT(encoding);
+                instr.operand_type  = OperandType::RI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_3 == 0b111)
             {
                 // Subtract 8-bit immediate SUB (immediate) on page A6-164
-                instr.name = Mnemonic::SUB;
+                instr.name    = Mnemonic::SUB;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding >> 8));
-                instr.imm = _8BIT(encoding);
-                instr.operand_type = OperandType::RI;
+                instr.imm           = _8BIT(encoding);
+                instr.operand_type  = OperandType::RI;
                 return {ReturnCode::OK, instr};
             }
         }
@@ -231,31 +231,31 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             if (opcode == 0b0000)
             {
                 // Bitwise AND AND (register) on page A6-107
-                instr.name = Mnemonic::AND;
+                instr.name    = Mnemonic::AND;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                instr.operand_type = OperandType::RR;
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
+                instr.operand_type  = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0001)
             {
                 // Exclusive OR EOR (register) on page A6-123
-                instr.name = Mnemonic::EOR;
+                instr.name    = Mnemonic::EOR;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                instr.operand_type = OperandType::RR;
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
+                instr.operand_type  = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0010)
             {
                 // Logical Shift Left LSL (register) on page A6-136
-                instr.name = Mnemonic::LSL;
-                instr.flags.S = !in_IT_block;
+                instr.name       = Mnemonic::LSL;
+                instr.flags.S    = !in_IT_block;
                 instr.shift_type = ShiftType::LSL;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
 
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
@@ -263,11 +263,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode == 0b0011)
             {
                 // Logical Shift Right LSR (register) on page A6-138
-                instr.name = Mnemonic::LSR;
-                instr.flags.S = !in_IT_block;
+                instr.name       = Mnemonic::LSR;
+                instr.flags.S    = !in_IT_block;
                 instr.shift_type = ShiftType::LSR;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
 
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
@@ -275,11 +275,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode == 0b0100)
             {
                 // Arithmetic Shift Right ASR (register) on page A6-109
-                instr.name = Mnemonic::ASR;
-                instr.flags.S = !in_IT_block;
+                instr.name       = Mnemonic::ASR;
+                instr.flags.S    = !in_IT_block;
                 instr.shift_type = ShiftType::ASR;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
 
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
@@ -287,109 +287,109 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode == 0b0101)
             {
                 // Add with Carry ADC (register) on page A6-100
-                instr.name = Mnemonic::ADC;
+                instr.name    = Mnemonic::ADC;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                instr.operand_type = OperandType::RR;
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
+                instr.operand_type  = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0110)
             {
                 // Subtract with Carry SBC (register) on page A6-155
-                instr.name = Mnemonic::SBC;
+                instr.name    = Mnemonic::SBC;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                instr.operand_type = OperandType::RR;
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
+                instr.operand_type  = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0111)
             {
                 // Rotate Right ROR (register) on page A6-153
-                instr.name = Mnemonic::ROR;
-                instr.flags.S = !in_IT_block;
+                instr.name       = Mnemonic::ROR;
+                instr.flags.S    = !in_IT_block;
                 instr.shift_type = ShiftType::ROR;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                instr.operand_type = OperandType::RR;
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
+                instr.operand_type  = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b1000)
             {
                 // Set flags on bitwise AND TST (register) on page A6-170
-                instr.name = Mnemonic::TST;
-                instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::TST;
+                instr.Rn           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b1001)
             {
                 // Reverse Subtract from 0 RSB (immediate) on page A6-154
-                instr.name = Mnemonic::RSB;
-                instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = 0;
+                instr.name         = Mnemonic::RSB;
+                instr.flags.S      = !in_IT_block;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = 0;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b1010)
             {
                 // Compare Registers CMP (register) on page A6-118
-                instr.name = Mnemonic::CMP;
-                instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::CMP;
+                instr.Rn           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b1011)
             {
                 // Compare Negative CMN (register) on page A6-116
-                instr.name = Mnemonic::CMN;
-                instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::CMN;
+                instr.Rn           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b1100)
             {
                 // Logical OR ORR (register) on page A6-147
-                instr.name = Mnemonic::ORR;
+                instr.name    = Mnemonic::ORR;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                instr.operand_type = OperandType::RR;
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
+                instr.operand_type  = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b1101)
             {
                 // Multiply Two Registers MUL on page A6-143
-                instr.name = Mnemonic::MUL;
+                instr.name    = Mnemonic::MUL;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rm = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.operand_type = OperandType::RR;
+                instr.Rn            = (Register)(_3BIT(encoding >> 3));
+                instr.operand_type  = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b1110)
             {
                 // Bit Clear BIC (register) on page A6-111
-                instr.name = Mnemonic::BIC;
+                instr.name    = Mnemonic::BIC;
                 instr.flags.S = !in_IT_block;
                 instr.Rd = instr.Rn = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
-                instr.operand_type = OperandType::RR;
+                instr.Rm            = (Register)(_3BIT(encoding >> 3));
+                instr.operand_type  = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b1111)
             {
                 // Bitwise NOT MVN (register) on page A6-144
-                instr.name = Mnemonic::MVN;
-                instr.flags.S = !in_IT_block;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::MVN;
+                instr.flags.S      = !in_IT_block;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
@@ -397,17 +397,17 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         else if (opcode == 0b010001)
         {
             // Special data instructions and branch and exchange on page A5-81
-            opcode = _4BIT(encoding >> 6);
+            opcode   = _4BIT(encoding >> 6);
             opcode_3 = opcode >> 1;
             opcode_2 = opcode >> 2;
 
             if (opcode_2 == 0b00)
             {
                 // Add Registers ADD (register) on page A6-102
-                instr.name = Mnemonic::ADD;
+                instr.name    = Mnemonic::ADD;
                 instr.flags.S = false;
                 instr.Rd = instr.Rn = (Register)((_1BIT(encoding >> 7) << 3) | _3BIT(encoding));
-                instr.Rm = (Register)(_4BIT(encoding >> 3));
+                instr.Rm            = (Register)(_4BIT(encoding >> 3));
                 if (instr.Rd == 0b1101 || instr.Rm == 0b1101)
                 {
                     // SEE ADD (SP plus register);
@@ -427,7 +427,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     else
                     {
                         instr.Rd = instr.Rn = Register::SP;
-                        instr.operand_type = OperandType::RRR;
+                        instr.operand_type  = OperandType::RRR;
                         return {ReturnCode::OK, instr};
                     }
                 }
@@ -450,8 +450,8 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             {
                 // Compare Registers CMP (register) on page A6-118
                 instr.name = Mnemonic::CMP;
-                instr.Rn = (Register)((_1BIT(encoding >> 7) << 3) | _3BIT(encoding));
-                instr.Rm = (Register)(_4BIT(encoding >> 3));
+                instr.Rn   = (Register)((_1BIT(encoding >> 7) << 3) | _3BIT(encoding));
+                instr.Rm   = (Register)(_4BIT(encoding >> 3));
                 if ((instr.Rn < 8 && instr.Rm < 8) || is15(Rn) || is15(Rm))
                 {
                     THROW_UNPREDICTABLE;
@@ -462,9 +462,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode_2 == 0b10)
             {
                 // Move Registers MOV (register) on page A6-140
-                instr.name = Mnemonic::MOV;
-                instr.Rd = (Register)((_1BIT(encoding >> 7) << 3) | _3BIT(encoding));
-                instr.Rm = (Register)(_4BIT(encoding >> 3));
+                instr.name         = Mnemonic::MOV;
+                instr.Rd           = (Register)((_1BIT(encoding >> 7) << 3) | _3BIT(encoding));
+                instr.Rm           = (Register)(_4BIT(encoding >> 3));
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
@@ -472,7 +472,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             {
                 // Branch and Exchange BX on page A6-115
                 instr.name = Mnemonic::BX;
-                instr.Rm = (Register)(_4BIT(encoding >> 3));
+                instr.Rm   = (Register)(_4BIT(encoding >> 3));
 
                 if (_3BIT(encoding) != 0)
                 {
@@ -490,7 +490,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             {
                 // Branch with Link and Exchange BLX (register) on page A6-114
                 instr.name = Mnemonic::BLX;
-                instr.Rm = (Register)(_4BIT(encoding >> 3));
+                instr.Rm   = (Register)(_4BIT(encoding >> 3));
 
                 if (_3BIT(encoding) != 0)
                 {
@@ -508,10 +508,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         else if (opcode_5 == 0b01001)
         {
             // Load from Literal Pool, see LDR (literal) on page A6-127
-            instr.name = Mnemonic::LDR;
-            instr.Rd = (Register)(_3BIT(encoding >> 8));
-            instr.imm = _8BIT(encoding) << 2;
-            instr.flags.add = true;
+            instr.name         = Mnemonic::LDR;
+            instr.Rd           = (Register)(_3BIT(encoding >> 8));
+            instr.imm          = _8BIT(encoding) << 2;
+            instr.flags.add    = true;
             instr.operand_type = OperandType::RI;
             return {ReturnCode::OK, instr};
         }
@@ -519,214 +519,214 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         {
             // Load/store single data item on page A5-82
 
-            opcode = encoding >> 9;
+            opcode   = encoding >> 9;
             opcode_5 = opcode >> 2;
 
             if (opcode == 0b0101000)
             {
                 // Store Register STR (register) on page A6-159
-                instr.name = Mnemonic::STR;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::STR;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0101001)
             {
                 // Store Register Halfword STRH (register) on page A6-163
-                instr.name = Mnemonic::STRH;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::STRH;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0101010)
             {
                 // Store Register Byte STRB (register) on page A6-161
-                instr.name = Mnemonic::STRB;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::STRB;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0101011)
             {
                 // Load Register Signed Byte LDRSB (register) on page A6-133
-                instr.name = Mnemonic::LDRSB;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDRSB;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0101100)
             {
                 // Load Register LDR (register) on page A6-128
-                instr.name = Mnemonic::LDR;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDR;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0101101)
             {
                 // Load Register Halfword LDRH (register) on page A6-132
-                instr.name = Mnemonic::LDRH;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDRH;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0101110)
             {
                 // Load Register Byte LDRB (register) on page A6-130
-                instr.name = Mnemonic::LDRB;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDRB;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode == 0b0101111)
             {
                 // Load Register Signed Halfword LDRSH (register) on page A6-134
-                instr.name = Mnemonic::LDRSH;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.Rm = (Register)(_3BIT(encoding >> 6));
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDRSH;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.Rm           = (Register)(_3BIT(encoding >> 6));
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b01100)
             {
                 // Store Register STR (immediate) on page A6-158
-                instr.name = Mnemonic::STR;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = _5BIT(encoding >> 6) << 2;
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::STR;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = _5BIT(encoding >> 6) << 2;
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b01101)
             {
                 // Load Register LDR (immediate) on page A6-126
-                instr.name = Mnemonic::LDR;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = _5BIT(encoding >> 6) << 2;
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDR;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = _5BIT(encoding >> 6) << 2;
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b01110)
             {
                 // Store Register Byte STRB (immediate) on page A6-160
-                instr.name = Mnemonic::STRB;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = _5BIT(encoding >> 6);
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::STRB;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = _5BIT(encoding >> 6);
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b01111)
             {
                 // Load Register Byte LDRB (immediate) on page A6-129
-                instr.name = Mnemonic::LDRB;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = _5BIT(encoding >> 6);
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDRB;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = _5BIT(encoding >> 6);
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b10000)
             {
                 // Store Register Halfword STRH (immediate) on page A6-162
-                instr.name = Mnemonic::STRH;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = _5BIT(encoding >> 6) << 1;
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::STRH;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = _5BIT(encoding >> 6) << 1;
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b10001)
             {
                 // Load Register Halfword LDRH (immediate) on page A6-131
-                instr.name = Mnemonic::LDRH;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rn = (Register)(_3BIT(encoding >> 3));
-                instr.imm = _5BIT(encoding >> 6) << 1;
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDRH;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rn           = (Register)(_3BIT(encoding >> 3));
+                instr.imm          = _5BIT(encoding >> 6) << 1;
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b10010)
             {
                 // Store Register SP relative STR (immediate) on page A6-158
-                instr.name = Mnemonic::STR;
-                instr.Rd = (Register)(_3BIT(encoding >> 8));
-                instr.Rn = Register::SP;
-                instr.imm = _8BIT(encoding) << 2;
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::STR;
+                instr.Rd           = (Register)(_3BIT(encoding >> 8));
+                instr.Rn           = Register::SP;
+                instr.imm          = _8BIT(encoding) << 2;
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b10011)
             {
                 // Load Register SP relative LDR (immediate) on page A6-126
-                instr.name = Mnemonic::LDR;
-                instr.Rd = (Register)(_3BIT(encoding >> 8));
-                instr.Rn = Register::SP;
-                instr.imm = _8BIT(encoding) << 2;
-                instr.flags.index = true;
-                instr.flags.add = true;
-                instr.flags.wback = false;
+                instr.name         = Mnemonic::LDR;
+                instr.Rd           = (Register)(_3BIT(encoding >> 8));
+                instr.Rn           = Register::SP;
+                instr.imm          = _8BIT(encoding) << 2;
+                instr.flags.index  = true;
+                instr.flags.add    = true;
+                instr.flags.wback  = false;
                 instr.operand_type = OperandType::RRI;
                 return {ReturnCode::OK, instr};
             }
@@ -734,21 +734,21 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         else if (opcode_5 == 0b10100)
         {
             // Generate PC-relative address, see ADR on page A6-106
-            instr.name = Mnemonic::ADR;
-            instr.Rd = (Register)(_3BIT(encoding >> 8));
-            instr.imm = _8BIT(encoding) << 2;
-            instr.flags.add = true;
+            instr.name         = Mnemonic::ADR;
+            instr.Rd           = (Register)(_3BIT(encoding >> 8));
+            instr.imm          = _8BIT(encoding) << 2;
+            instr.flags.add    = true;
             instr.operand_type = OperandType::RI;
             return {ReturnCode::OK, instr};
         }
         else if (opcode_5 == 0b10101)
         {
             // Generate SP-relative address, see ADD (SP plus immediate) on page A6-104
-            instr.name = Mnemonic::ADD;
-            instr.flags.S = false;
-            instr.Rd = (Register)(_3BIT(encoding >> 8));
-            instr.Rn = Register::SP;
-            instr.imm = _8BIT(encoding) << 2;
+            instr.name         = Mnemonic::ADD;
+            instr.flags.S      = false;
+            instr.Rd           = (Register)(_3BIT(encoding >> 8));
+            instr.Rn           = Register::SP;
+            instr.imm          = _8BIT(encoding) << 2;
             instr.operand_type = OperandType::RRI;
             return {ReturnCode::OK, instr};
         }
@@ -756,31 +756,31 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         {
             // Miscellaneous 16-bit instructions on page A5-83
 
-            opcode = _7BIT(encoding >> 5);
+            opcode      = _7BIT(encoding >> 5);
             u8 opcode_6 = opcode >> 1;
-            opcode_5 = opcode >> 2;
-            opcode_4 = opcode >> 3;
-            opcode_3 = opcode >> 4;
+            opcode_5    = opcode >> 2;
+            opcode_4    = opcode >> 3;
+            opcode_3    = opcode >> 4;
 
             if (opcode_5 == 0b00000)
             {
                 // Add Immediate to SP ADD (SP plus immediate) on page A6-104
-                instr.name = Mnemonic::ADD;
-                instr.flags.S = false;
-                instr.Rd = Register::SP;
-                instr.Rn = Register::SP;
-                instr.imm = _7BIT(encoding) << 2;
+                instr.name         = Mnemonic::ADD;
+                instr.flags.S      = false;
+                instr.Rd           = Register::SP;
+                instr.Rn           = Register::SP;
+                instr.imm          = _7BIT(encoding) << 2;
                 instr.operand_type = OperandType::RI;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_5 == 0b00001)
             {
                 // Subtract Immediate from SP SUB (SP minus immediate) on page A6-166
-                instr.name = Mnemonic::SUB;
-                instr.flags.S = false;
-                instr.Rd = Register::SP;
-                instr.Rn = Register::SP;
-                instr.imm = _7BIT(encoding) << 2;
+                instr.name         = Mnemonic::SUB;
+                instr.flags.S      = false;
+                instr.Rd           = Register::SP;
+                instr.Rn           = Register::SP;
+                instr.imm          = _7BIT(encoding) << 2;
                 instr.operand_type = OperandType::RI;
                 return {ReturnCode::OK, instr};
             }
@@ -790,8 +790,8 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
 
                 // Compare and Branch on Zero CBNZ, CBZ on page A7-216
                 instr.name = (_1BIT(encoding >> 11) == 1) ? Mnemonic::CBNZ : Mnemonic::CBZ;
-                instr.Rn = (Register)(_3BIT(encoding));
-                instr.imm = (_1BIT(encoding >> 9) << 6) | (_5BIT(encoding >> 3) << 1);
+                instr.Rn   = (Register)(_3BIT(encoding));
+                instr.imm  = (_1BIT(encoding >> 9) << 6) | (_5BIT(encoding >> 3) << 1);
 
                 if (in_IT_block)
                 {
@@ -804,9 +804,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode_6 == 0b001000)
             {
                 // Signed Extend Halfword SXTH on page A6-169
-                instr.name = Mnemonic::SXTH;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::SXTH;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.shift_amount = 0;
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
@@ -814,9 +814,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode_6 == 0b001001)
             {
                 // Signed Extend Byte SXTB on page A6-168
-                instr.name = Mnemonic::SXTB;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::SXTB;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.shift_amount = 0;
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
@@ -824,9 +824,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode_6 == 0b001010)
             {
                 // Unsigned Extend Halfword UXTH on page A6-173
-                instr.name = Mnemonic::UXTH;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::UXTH;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.shift_amount = 0;
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
@@ -834,9 +834,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode_6 == 0b001011)
             {
                 // Unsigned Extend Byte UXTB on page A6-172
-                instr.name = Mnemonic::UXTB;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::UXTB;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.shift_amount = 0;
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
@@ -845,8 +845,8 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             {
                 // Push Multiple Registers PUSH on page A6-149
                 instr.name = Mnemonic::PUSH;
-                u32 m = _1BIT(encoding >> 8);
-                instr.imm = (m << 14) | _8BIT(encoding);
+                u32 m      = _1BIT(encoding >> 8);
+                instr.imm  = (m << 14) | _8BIT(encoding);
                 if (instr.imm == 0)
                 {
                     THROW_UNPREDICTABLE;
@@ -857,8 +857,8 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode == 0b0110011)
             {
                 // Change Processor State CPS on page B4-264
-                instr.name = Mnemonic::CPS;
-                instr.imm = _5BIT(encoding);
+                instr.name         = Mnemonic::CPS;
+                instr.imm          = _5BIT(encoding);
                 instr.operand_type = OperandType::I;
 
                 if (_2BIT(encoding >> 2) != 0b00)
@@ -874,27 +874,27 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode_6 == 0b101000)
             {
                 // Byte-Reverse Word REV on page A6-150
-                instr.name = Mnemonic::REV;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::REV;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_6 == 0b101001)
             {
                 // Byte-Reverse Packed Halfword REV16 on page A6-151
-                instr.name = Mnemonic::REV16;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::REV16;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
             else if (opcode_6 == 0b101011)
             {
                 // Byte-Reverse Signed Halfword REVSH on page A6-152
-                instr.name = Mnemonic::REVSH;
-                instr.Rd = (Register)(_3BIT(encoding));
-                instr.Rm = (Register)(_3BIT(encoding >> 3));
+                instr.name         = Mnemonic::REVSH;
+                instr.Rd           = (Register)(_3BIT(encoding));
+                instr.Rm           = (Register)(_3BIT(encoding >> 3));
                 instr.operand_type = OperandType::RR;
                 return {ReturnCode::OK, instr};
             }
@@ -902,8 +902,8 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             {
                 // Pop Multiple Registers POP on page A6-148
                 instr.name = Mnemonic::POP;
-                u32 p = _1BIT(encoding >> 8);
-                instr.imm = (p << 15) | _8BIT(encoding);
+                u32 p      = _1BIT(encoding >> 8);
+                instr.imm  = (p << 15) | _8BIT(encoding);
                 if (instr.imm == 0)
                 {
                     THROW_UNPREDICTABLE;
@@ -932,7 +932,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     REQUIRE_ARCH(Architecture::ARMv7M);
 
                     u32 firstcond = _4BIT(encoding >> 4);
-                    u32 mask = _4BIT(encoding);
+                    u32 mask      = _4BIT(encoding);
 
                     if (firstcond == 0b1111 || (firstcond == 0b1110 && arm_functions::bit_count(mask) != 1))
                     {
@@ -944,8 +944,8 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         THROW_UNPREDICTABLE;
                     }
 
-                    instr.name = Mnemonic::IT;
-                    instr.imm = (firstcond << 4) | mask;
+                    instr.name         = Mnemonic::IT;
+                    instr.imm          = (firstcond << 4) | mask;
                     instr.operand_type = OperandType::I;
                     return {ReturnCode::OK, instr};
                 }
@@ -985,9 +985,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         else if (opcode_5 == 0b11000)
         {
             // Store multiple registers, see STM, STMIA, STMEA on page A6-157
-            instr.name = Mnemonic::STM;
-            instr.Rn = (Register)(_3BIT(encoding >> 8));
-            instr.imm = _8BIT(encoding);
+            instr.name        = Mnemonic::STM;
+            instr.Rn          = (Register)(_3BIT(encoding >> 8));
+            instr.imm         = _8BIT(encoding);
             instr.flags.wback = true;
             if (instr.imm == 0)
             {
@@ -1003,9 +1003,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         else if (opcode_5 == 0b11001)
         {
             // Load multiple registers, see LDM, LDMIA, LDMFD on page A6-125
-            instr.name = Mnemonic::LDM;
-            instr.Rn = (Register)(_3BIT(encoding >> 8));
-            instr.imm = _8BIT(encoding);
+            instr.name        = Mnemonic::LDM;
+            instr.Rn          = (Register)(_3BIT(encoding >> 8));
+            instr.imm         = _8BIT(encoding);
             instr.flags.wback = (_1BIT(instr.imm >> instr.Rn) == 0);
             if (instr.imm == 0)
             {
@@ -1017,15 +1017,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         else if (opcode_4 == 0b1101)
         {
             // Conditional branch, and Supervisor Call on page A5-84
-            opcode = _4BIT(encoding >> 8);
+            opcode   = _4BIT(encoding >> 8);
             opcode_3 = opcode >> 1;
 
             if (opcode_3 != 0b111)
             {
                 // Conditional branch B on page A6-110
-                instr.name = Mnemonic::B;
+                instr.name      = Mnemonic::B;
                 instr.condition = (Condition)(_4BIT(encoding >> 8));
-                instr.imm = arm_functions::sign_extend(_8BIT(encoding) << 1, 9);
+                instr.imm       = arm_functions::sign_extend(_8BIT(encoding) << 1, 9);
 
                 if (in_IT_block)
                 {
@@ -1044,8 +1044,8 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             else if (opcode == 0b1111)
             {
                 // Supervisor Call SVC on page A6-167
-                instr.name = Mnemonic::SVC;
-                instr.imm = _8BIT(encoding);
+                instr.name         = Mnemonic::SVC;
+                instr.imm          = _8BIT(encoding);
                 instr.operand_type = OperandType::I;
                 return {ReturnCode::OK, instr};
             }
@@ -1054,7 +1054,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         {
             // Unconditional Branch, see B on page A6-110
             instr.name = Mnemonic::B;
-            instr.imm = arm_functions::sign_extend(_11BIT(encoding) << 1, 12);
+            instr.imm  = arm_functions::sign_extend(_11BIT(encoding) << 1, 12);
 
             if (in_IT_block && !last_in_IT_block)
             {
@@ -1068,21 +1068,21 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
     else
     {
         u16 encoding_high = instruction_stream[0];
-        u16 encoding_low = instruction_stream[1];
-        instr.encoding = ((u32)encoding_high << 16) | encoding_low;
+        u16 encoding_low  = instruction_stream[1];
+        instr.encoding    = ((u32)encoding_high << 16) | encoding_low;
 
         // 32-bit thumb code
 
         u8 op1 = _2BIT(encoding_high >> 11);
         u8 op2 = _7BIT(encoding_high >> 4);
-        u8 op = (encoding_low >> 15);
+        u8 op  = (encoding_low >> 15);
 
         if (op1 == 0b01)
         {
-            if (_2BIT(op2 >> 5) == 0 && _1BIT(op2 >> 2) == 0) // 0b00xx0xx
+            if (_2BIT(op2 >> 5) == 0 && _1BIT(op2 >> 2) == 0)    // 0b00xx0xx
             {
                 // Load Multiple and Store Multiple on page A5 - 144
-                op = (_2BIT(encoding_high >> 7) << 1) | _1BIT(encoding_high >> 4);
+                op     = (_2BIT(encoding_high >> 7) << 1) | _1BIT(encoding_high >> 4);
                 u8 wrn = (_1BIT(encoding_high >> 5) << 4) | _4BIT(encoding_high);
 
                 if (op == 0b010)
@@ -1095,9 +1095,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         THROW_UNEXPECTED;
                     }
 
-                    instr.name = Mnemonic::STM;
-                    instr.Rn = (Register)(_4BIT(encoding_high));
-                    instr.imm = encoding_low;
+                    instr.name        = Mnemonic::STM;
+                    instr.Rn          = (Register)(_4BIT(encoding_high));
+                    instr.imm         = encoding_low;
                     instr.flags.wback = _1BIT(encoding_high >> 5) == 1;
                     if (arm_functions::bit_count(instr.imm) < 2 || is15(Rn))
                     {
@@ -1111,10 +1111,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Load Multiple (Increment After, Full Descending) LDM, LDMIA, LDMFD on page A7 - 242
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::LDM;
-                    instr.Rn = (Register)(_4BIT(encoding_high));
-                    instr.imm = encoding_low;
-                    instr.flags.wback = _1BIT(encoding_high >> 5) == 1;
+                    instr.name         = Mnemonic::LDM;
+                    instr.Rn           = (Register)(_4BIT(encoding_high));
+                    instr.imm          = encoding_low;
+                    instr.flags.wback  = _1BIT(encoding_high >> 5) == 1;
                     instr.operand_type = OperandType::RI;
 
                     if (_1BIT(encoding_low >> 13) != 0)
@@ -1140,8 +1140,8 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Pop Multiple Registers from the stack POP on page A7 - 319
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::POP;
-                    instr.imm = encoding_low;
+                    instr.name         = Mnemonic::POP;
+                    instr.imm          = encoding_low;
                     instr.operand_type = OperandType::I;
                     if (_1BIT(encoding_low >> 13) != 0)
                     {
@@ -1161,10 +1161,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Store Multiple (Decrement Before, Full Descending) STMDB, STMFD on page A7 - 385
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::STMDB;
-                    instr.Rn = (Register)_4BIT(encoding_high);
+                    instr.name        = Mnemonic::STMDB;
+                    instr.Rn          = (Register)_4BIT(encoding_high);
                     instr.flags.wback = (_1BIT(encoding_high >> 5) == 1);
-                    instr.imm = encoding_low;
+                    instr.imm         = encoding_low;
                     if (_1BIT(encoding_low >> 13) != 0 || _1BIT(encoding_low >> 15) != 0)
                     {
                         THROW_UNEXPECTED;
@@ -1185,7 +1185,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     // Push Multiple Registers to the stack. PUSH on page A7 - 322
                     REQUIRE_ARCH(Architecture::ARMv7M);
                     instr.name = Mnemonic::PUSH;
-                    instr.imm = encoding_low;
+                    instr.imm  = encoding_low;
                     if (_1BIT(encoding_low >> 15) != 0 || _1BIT(encoding_low >> 13) != 0)
                     {
                         THROW_UNEXPECTED;
@@ -1201,10 +1201,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Load Multiple (Decrement Before, Empty Ascending) LDMDB, LDMEA on page A7 - 244
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::LDMDB;
-                    instr.Rn = (Register)_4BIT(encoding_high);
+                    instr.name        = Mnemonic::LDMDB;
+                    instr.Rn          = (Register)_4BIT(encoding_high);
                     instr.flags.wback = (_1BIT(encoding_high >> 5) == 1);
-                    instr.imm = encoding_low;
+                    instr.imm         = encoding_low;
                     if (_1BIT(encoding_low >> 13) != 0)
                     {
                         THROW_UNEXPECTED;
@@ -1225,24 +1225,24 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     return {ReturnCode::OK, instr};
                 }
             }
-            else if (_2BIT(op2 >> 5) == 0 && _1BIT(op2 >> 2) == 1) // 0b00xx1xx
+            else if (_2BIT(op2 >> 5) == 0 && _1BIT(op2 >> 2) == 1)    // 0b00xx1xx
             {
                 // Load / store dual or exclusive, table branch on page A5 - 145
-                op1 = _2BIT(encoding_high >> 7);
-                op2 = _2BIT(encoding_high >> 4);
+                op1    = _2BIT(encoding_high >> 7);
+                op2    = _2BIT(encoding_high >> 4);
                 u8 op3 = _4BIT(encoding_low >> 4);
 
                 if ((_1BIT(op1 >> 1) == 0 && op2 == 0b10) || (_1BIT(op1 >> 1) == 1 && _1BIT(op2) == 0))
                 {
                     // Store Register Dual STRD (immediate) on page A7 - 393
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::STRD;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low >> 8);
-                    instr.imm = _8BIT(encoding_low) << 2;
+                    instr.name        = Mnemonic::STRD;
+                    instr.Rd          = (Register)_4BIT(encoding_low >> 12);
+                    instr.Rn          = (Register)_4BIT(encoding_high);
+                    instr.Rm          = (Register)_4BIT(encoding_low >> 8);
+                    instr.imm         = _8BIT(encoding_low) << 2;
                     instr.flags.index = _1BIT(encoding_high >> 8) == 1;
-                    instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                    instr.flags.add   = _1BIT(encoding_high >> 7) == 1;
                     instr.flags.wback = _1BIT(encoding_high >> 5) == 1;
                     if ((instr.Rn == instr.Rd || instr.Rn == instr.Rm) && instr.flags.wback)
                     {
@@ -1261,13 +1261,13 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Load Register Dual LDRD (immediate) on page A7 - 257, LDRD (literal) on page A7 - 259
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::LDRD;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low >> 8);
-                    instr.imm = _8BIT(encoding_low) << 2;
+                    instr.name        = Mnemonic::LDRD;
+                    instr.Rd          = (Register)_4BIT(encoding_low >> 12);
+                    instr.Rn          = (Register)_4BIT(encoding_high);
+                    instr.Rm          = (Register)_4BIT(encoding_low >> 8);
+                    instr.imm         = _8BIT(encoding_low) << 2;
                     instr.flags.wback = _1BIT(encoding_high >> 5) == 1;
-                    instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                    instr.flags.add   = _1BIT(encoding_high >> 7) == 1;
                     instr.flags.index = _1BIT(encoding_high >> 8) == 1;
 
                     if (is13or15(Rd) || is13or15(Rm) || instr.Rd == instr.Rm)
@@ -1282,7 +1282,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             THROW_UNPREDICTABLE;
                         }
-                        instr.flags.index = true;
+                        instr.flags.index  = true;
                         instr.operand_type = OperandType::RRI;
                     }
                     else
@@ -1303,11 +1303,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Store Register Exclusive STREX on page A7 - 394
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::STREX;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rm = (Register)_4BIT(encoding_low >> 12);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = _8BIT(encoding_low) << 2;
+                        instr.name         = Mnemonic::STREX;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rm           = (Register)_4BIT(encoding_low >> 12);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = _8BIT(encoding_low) << 2;
                         instr.operand_type = OperandType::RRRI;
 
                         if (is13or15(Rd) || is13or15(Rm) || is15(Rn))
@@ -1324,10 +1324,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Load Register Exclusive LDREX on page A7 - 261
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::LDREX;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = _8BIT(encoding_low) << 2;
+                        instr.name         = Mnemonic::LDREX;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = _8BIT(encoding_low) << 2;
                         instr.operand_type = OperandType::RRI;
 
                         if (_4BIT(encoding_low >> 8) != 0b1111)
@@ -1349,10 +1349,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Store Register Exclusive Byte STREXB on page A7 - 395
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::STREXB;
-                            instr.Rd = (Register)_4BIT(encoding_low);
-                            instr.Rm = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = Mnemonic::STREXB;
+                            instr.Rd           = (Register)_4BIT(encoding_low);
+                            instr.Rm           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RRR;
 
                             if (_4BIT(encoding_low >> 8) != 0b1111)
@@ -1373,10 +1373,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Store Register Exclusive Halfword STREXH on page A7 - 396
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::STREXH;
-                            instr.Rd = (Register)_4BIT(encoding_low);
-                            instr.Rm = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = Mnemonic::STREXH;
+                            instr.Rd           = (Register)_4BIT(encoding_low);
+                            instr.Rm           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RRR;
 
                             if (_4BIT(encoding_low >> 8) != 0b1111)
@@ -1400,9 +1400,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Table Branch Byte TBB, TBH on page A7 - 416
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = (_1BIT(encoding_low >> 4) == 1) ? Mnemonic::TBH : Mnemonic::TBB;
-                            instr.Rm = (Register)_4BIT(encoding_low);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = (_1BIT(encoding_low >> 4) == 1) ? Mnemonic::TBH : Mnemonic::TBB;
+                            instr.Rm           = (Register)_4BIT(encoding_low);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RR;
                             if (_4BIT(encoding_low >> 12) != 0b1111 || _4BIT(encoding_low >> 8) != 0b0000)
                             {
@@ -1422,9 +1422,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Exclusive Byte LDREXB on page A7 - 262
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDREXB;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = Mnemonic::LDREXB;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RR;
 
                             if (_4BIT(encoding_low >> 8) != 0b1111 || _4BIT(encoding_low) != 0b1111)
@@ -1441,9 +1441,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Exclusive Halfword LDREXH on page A7 - 263
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDREXH;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = Mnemonic::LDREXH;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RR;
 
                             if (_4BIT(encoding_low >> 8) != 0b1111 || _4BIT(encoding_low) != 0b1111)
@@ -1459,11 +1459,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     }
                 }
             }
-            else if (_2BIT(op2 >> 5) == 0b01) // 0b01xxxxx
+            else if (_2BIT(op2 >> 5) == 0b01)    // 0b01xxxxx
             {
                 // Data processing (shifted register) on page A5 - 150
-                op = _4BIT(encoding_high >> 5);
-                u8 S = _1BIT(encoding_high >> 4);
+                op    = _4BIT(encoding_high >> 5);
+                u8 S  = _1BIT(encoding_high >> 4);
                 u8 Rn = _4BIT(encoding_high);
                 u8 Rd = _4BIT(encoding_low >> 8);
 
@@ -1473,15 +1473,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise AND AND (register) on page A7 - 201 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::AND;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::AND;
+                        instr.flags.S           = _1BIT(encoding_high >> 4);
+                        instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RRR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RRR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1500,13 +1500,13 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         }
                         // Test TST (register) on page A7 - 420 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::TST;
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::TST;
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1522,15 +1522,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Bitwise Bit Clear BIC (register) on page A7 - 210 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::BIC;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
+                    instr.name              = Mnemonic::BIC;
+                    instr.flags.S           = _1BIT(encoding_high >> 4);
+                    instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn                = (Register)_4BIT(encoding_high);
+                    instr.Rm                = (Register)_4BIT(encoding_low);
                     auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                    instr.shift_type = shift_t;
-                    instr.shift_amount = shift_n;
-                    instr.operand_type = OperandType::RRR;
+                    instr.shift_type        = shift_t;
+                    instr.shift_amount      = shift_n;
+                    instr.operand_type      = OperandType::RRR;
                     if (encoding_low >> 15 != 0)
                     {
                         THROW_UNEXPECTED;
@@ -1547,15 +1547,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise OR ORR (register) on page A7 - 310 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::ORR;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::ORR;
+                        instr.flags.S           = _1BIT(encoding_high >> 4);
+                        instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RRR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RRR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1570,7 +1570,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Move register and immediate shifts -
                         u8 type = _2BIT(encoding_low >> 4);
-                        u8 imm = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
+                        u8 imm  = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
 
                         if (type == 0b00)
                         {
@@ -1578,10 +1578,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Move MOV (register) on page A7 - 293
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::MOV;
-                                instr.flags.S = _1BIT(encoding_high >> 4);
-                                instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                                instr.Rm = (Register)_4BIT(encoding_low);
+                                instr.name         = Mnemonic::MOV;
+                                instr.flags.S      = _1BIT(encoding_high >> 4);
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                                instr.Rm           = (Register)_4BIT(encoding_low);
                                 instr.operand_type = OperandType::RR;
                                 if (encoding_low >> 15 != 0)
                                 {
@@ -1601,14 +1601,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Logical Shift Left LSL (immediate) on page A7 - 282
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LSL;
-                                instr.flags.S = _1BIT(encoding_high >> 4);
-                                instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                                instr.Rm = (Register)_4BIT(encoding_low);
+                                instr.name              = Mnemonic::LSL;
+                                instr.flags.S           = _1BIT(encoding_high >> 4);
+                                instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                                instr.Rm                = (Register)_4BIT(encoding_low);
                                 auto [shift_t, shift_n] = arm_functions::decode_imm_shift(0b00, imm);
-                                instr.shift_type = shift_t;
-                                instr.shift_amount = shift_n;
-                                instr.operand_type = OperandType::RRI;
+                                instr.shift_type        = shift_t;
+                                instr.shift_amount      = shift_n;
+                                instr.operand_type      = OperandType::RRI;
                                 if (encoding_low >> 15 != 0)
                                 {
                                     THROW_UNEXPECTED;
@@ -1624,14 +1624,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Logical Shift Right LSR (immediate) on page A7 - 284
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LSR;
-                            instr.flags.S = _1BIT(encoding_high >> 4);
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
+                            instr.name              = Mnemonic::LSR;
+                            instr.flags.S           = _1BIT(encoding_high >> 4);
+                            instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm                = (Register)_4BIT(encoding_low);
                             auto [shift_t, shift_n] = arm_functions::decode_imm_shift(0b01, imm);
-                            instr.shift_type = shift_t;
-                            instr.shift_amount = shift_n;
-                            instr.operand_type = OperandType::RRI;
+                            instr.shift_type        = shift_t;
+                            instr.shift_amount      = shift_n;
+                            instr.operand_type      = OperandType::RRI;
                             if (encoding_low >> 15 != 0)
                             {
                                 THROW_UNEXPECTED;
@@ -1646,14 +1646,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Arithmetic Shift Right ASR (immediate) on page A7 - 203
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::ASR;
-                            instr.flags.S = _1BIT(encoding_high >> 4);
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
+                            instr.name              = Mnemonic::ASR;
+                            instr.flags.S           = _1BIT(encoding_high >> 4);
+                            instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm                = (Register)_4BIT(encoding_low);
                             auto [shift_t, shift_n] = arm_functions::decode_imm_shift(0b10, imm);
-                            instr.shift_type = shift_t;
-                            instr.shift_amount = shift_n;
-                            instr.operand_type = OperandType::RRI;
+                            instr.shift_type        = shift_t;
+                            instr.shift_amount      = shift_n;
+                            instr.operand_type      = OperandType::RRI;
                             if (encoding_low >> 15 != 0)
                             {
                                 THROW_UNEXPECTED;
@@ -1670,10 +1670,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Rotate Right with Extend RRX on page A7 - 340
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::RRX;
-                                instr.flags.S = _1BIT(encoding_high >> 4);
-                                instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                                instr.Rm = (Register)_4BIT(encoding_low);
+                                instr.name         = Mnemonic::RRX;
+                                instr.flags.S      = _1BIT(encoding_high >> 4);
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                                instr.Rm           = (Register)_4BIT(encoding_low);
                                 instr.operand_type = OperandType::RR;
                                 if (encoding_low >> 15 != 0)
                                 {
@@ -1689,14 +1689,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Rotate Right ROR (immediate) on page A7 - 338
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::ROR;
-                                instr.flags.S = _1BIT(encoding_high >> 4);
-                                instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                                instr.Rm = (Register)_4BIT(encoding_low);
+                                instr.name              = Mnemonic::ROR;
+                                instr.flags.S           = _1BIT(encoding_high >> 4);
+                                instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                                instr.Rm                = (Register)_4BIT(encoding_low);
                                 auto [shift_t, shift_n] = arm_functions::decode_imm_shift(0b11, imm);
-                                instr.shift_type = shift_t;
-                                instr.shift_amount = shift_n;
-                                instr.operand_type = OperandType::RRI;
+                                instr.shift_type        = shift_t;
+                                instr.shift_amount      = shift_n;
+                                instr.operand_type      = OperandType::RRI;
                                 if (encoding_low >> 15 != 0)
                                 {
                                     THROW_UNEXPECTED;
@@ -1716,15 +1716,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise OR NOT ORN (register) on page A7 - 308 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::ORN;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::ORN;
+                        instr.flags.S           = _1BIT(encoding_high >> 4);
+                        instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RRR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RRR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1739,14 +1739,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise NOT MVN (register) on page A7 - 304 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::MVN;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::MVN;
+                        instr.flags.S           = _1BIT(encoding_high >> 4);
+                        instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1764,15 +1764,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise Exclusive OR EOR (register) on page A7 - 233 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::EOR;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::EOR;
+                        instr.flags.S           = _1BIT(encoding_high >> 4);
+                        instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RRR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RRR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1791,13 +1791,13 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         }
                         // Test Equivalence TEQ (register) on page A7 - 418 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::TEQ;
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::TEQ;
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1820,15 +1820,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Add ADD (register) on page A7 - 192 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::ADD;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::ADD;
+                        instr.flags.S           = _1BIT(encoding_high >> 4);
+                        instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RRR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RRR;
 
                         if (encoding_low >> 15 != 0)
                         {
@@ -1860,13 +1860,13 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         }
                         // Compare Negative CMN (register) on page A7 - 222 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::CMN;
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::CMN;
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1882,15 +1882,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Add with Carry ADC (register) on page A7 - 188 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::ADC;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
+                    instr.name              = Mnemonic::ADC;
+                    instr.flags.S           = _1BIT(encoding_high >> 4);
+                    instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn                = (Register)_4BIT(encoding_high);
+                    instr.Rm                = (Register)_4BIT(encoding_low);
                     auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                    instr.shift_type = shift_t;
-                    instr.shift_amount = shift_n;
-                    instr.operand_type = OperandType::RRR;
+                    instr.shift_type        = shift_t;
+                    instr.shift_amount      = shift_n;
+                    instr.operand_type      = OperandType::RRR;
                     if (encoding_low >> 15 != 0)
                     {
                         THROW_UNEXPECTED;
@@ -1905,15 +1905,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Subtract with Carry SBC (register) on page A7 - 347 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::SBC;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
+                    instr.name              = Mnemonic::SBC;
+                    instr.flags.S           = _1BIT(encoding_high >> 4);
+                    instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn                = (Register)_4BIT(encoding_high);
+                    instr.Rm                = (Register)_4BIT(encoding_low);
                     auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                    instr.shift_type = shift_t;
-                    instr.shift_amount = shift_n;
-                    instr.operand_type = OperandType::RRR;
+                    instr.shift_type        = shift_t;
+                    instr.shift_amount      = shift_n;
+                    instr.operand_type      = OperandType::RRR;
                     if (encoding_low >> 15 != 0)
                     {
                         THROW_UNEXPECTED;
@@ -1930,15 +1930,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Subtract SUB (register) on page A7 - 404 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::SUB;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::SUB;
+                        instr.flags.S           = _1BIT(encoding_high >> 4);
+                        instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RRR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RRR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1968,13 +1968,13 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         }
                         // Compare CMP (register) on page A7 - 224 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::CMP;
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name              = Mnemonic::CMP;
+                        instr.Rn                = (Register)_4BIT(encoding_high);
+                        instr.Rm                = (Register)_4BIT(encoding_low);
                         auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                        instr.shift_type = shift_t;
-                        instr.shift_amount = shift_n;
-                        instr.operand_type = OperandType::RR;
+                        instr.shift_type        = shift_t;
+                        instr.shift_amount      = shift_n;
+                        instr.operand_type      = OperandType::RR;
                         if (encoding_low >> 15 != 0)
                         {
                             THROW_UNEXPECTED;
@@ -1990,15 +1990,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Reverse Subtract RSB (register) on page A7 - 342 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::RSB;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
+                    instr.name              = Mnemonic::RSB;
+                    instr.flags.S           = _1BIT(encoding_high >> 4);
+                    instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn                = (Register)_4BIT(encoding_high);
+                    instr.Rm                = (Register)_4BIT(encoding_low);
                     auto [shift_t, shift_n] = arm_functions::decode_imm_shift(_2BIT(encoding_low >> 4), (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                    instr.shift_type = shift_t;
-                    instr.shift_amount = shift_n;
-                    instr.operand_type = OperandType::RRR;
+                    instr.shift_type        = shift_t;
+                    instr.shift_amount      = shift_n;
+                    instr.operand_type      = OperandType::RRR;
                     if (encoding_low >> 15 != 0)
                     {
                         THROW_UNEXPECTED;
@@ -2013,11 +2013,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         }
         else if (op1 == 0b10)
         {
-            if (_1BIT(op2 >> 5) == 0 && op == 0) // 0bx0xxxxx
+            if (_1BIT(op2 >> 5) == 0 && op == 0)    // 0bx0xxxxx
             {
                 // Data processing (modified immediate) on page A5 - 138
 
-                op = _4BIT(encoding_high >> 5);
+                op    = _4BIT(encoding_high >> 5);
                 u8 Rn = _4BIT(encoding_high);
                 u8 Rd = _4BIT(encoding_low >> 8);
 
@@ -2027,11 +2027,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise AND AND (immediate) on page A7 - 200
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::AND;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::AND;
+                        instr.flags.S      = _1BIT(encoding_high >> 4);
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RRI;
                         if (is13or15(Rn) || is13(Rd) || (is15(Rd) && !instr.flags.S))
                         {
@@ -2043,9 +2043,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Test TST (immediate) on page A7 - 419
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::TST;
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::TST;
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RI;
                         if (is13or15(Rn))
                         {
@@ -2058,11 +2058,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Bitwise Clear BIC (immediate) on page A7 - 209
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::BIC;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                    instr.name         = Mnemonic::BIC;
+                    instr.flags.S      = _1BIT(encoding_high >> 4);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                     instr.operand_type = OperandType::RRI;
                     if (is13or15(Rn) || is13(Rd) || (is15(Rd) && !instr.flags.S))
                     {
@@ -2076,11 +2076,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise Inclusive OR ORR (immediate) on page A7 - 309
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::ORR;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::ORR;
+                        instr.flags.S      = _1BIT(encoding_high >> 4);
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RRI;
                         if (is13or15(Rn) || is13(Rd) || (is15(Rd) && !instr.flags.S))
                         {
@@ -2092,10 +2092,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Move MOV (immediate) on page A7 - 291
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::MOV;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::MOV;
+                        instr.flags.S      = _1BIT(encoding_high >> 4);
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RI;
                         if (is13or15(Rd))
                         {
@@ -2110,11 +2110,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise OR NOT ORN (immediate) on page A7 - 307
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::ORN;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::ORN;
+                        instr.flags.S      = _1BIT(encoding_high >> 4);
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RRI;
                         if (is13or15(Rn) || is13(Rd))
                         {
@@ -2126,10 +2126,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise NOT MVN (immediate) on page A7 - 303
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::MVN;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::MVN;
+                        instr.flags.S      = _1BIT(encoding_high >> 4);
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RI;
                         if (is13or15(Rd))
                         {
@@ -2144,11 +2144,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Bitwise Exclusive OR EOR (immediate) on page A7 - 232
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::EOR;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::EOR;
+                        instr.flags.S      = _1BIT(encoding_high >> 4);
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RRI;
                         if (is13or15(Rn) || is13(Rd) || (is15(Rd) && !instr.flags.S))
                         {
@@ -2160,9 +2160,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Test Equivalence TEQ (immediate) on page A7 - 417
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::TEQ;
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::TEQ;
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RI;
                         if (is13or15(Rn))
                         {
@@ -2177,14 +2177,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Add ADD (immediate) on page A7 - 190
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::ADD;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::ADD;
+                        instr.flags.S      = _1BIT(encoding_high >> 4);
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         auto [imm_ok, val] = arm_functions::thumb_expand_imm(instr.imm);
                         CHECK_IMM(imm_ok);
-                        instr.imm = val;
+                        instr.imm          = val;
                         instr.operand_type = OperandType::RRI;
                         if (is13(Rn))
                         {
@@ -2207,12 +2207,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Compare Negative CMN (immediate) on page A7 - 221
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::CMN;
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::CMN;
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         auto [imm_ok, val] = arm_functions::thumb_expand_imm(instr.imm);
                         CHECK_IMM(imm_ok);
-                        instr.imm = val;
+                        instr.imm          = val;
                         instr.operand_type = OperandType::RI;
                         if (is15(Rn))
                         {
@@ -2225,14 +2225,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Add with Carry ADC (immediate) on page A7 - 187
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::ADC;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                    instr.name         = Mnemonic::ADC;
+                    instr.flags.S      = _1BIT(encoding_high >> 4);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                     auto [imm_ok, val] = arm_functions::thumb_expand_imm(instr.imm);
                     CHECK_IMM(imm_ok);
-                    instr.imm = val;
+                    instr.imm          = val;
                     instr.operand_type = OperandType::RRI;
                     if (is13or15(Rn) || is13or15(Rd))
                     {
@@ -2244,14 +2244,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Subtract with Carry SBC (immediate) on page A7 - 346
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::SBC;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                    instr.name         = Mnemonic::SBC;
+                    instr.flags.S      = _1BIT(encoding_high >> 4);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                     auto [imm_ok, val] = arm_functions::thumb_expand_imm(instr.imm);
                     CHECK_IMM(imm_ok);
-                    instr.imm = val;
+                    instr.imm          = val;
                     instr.operand_type = OperandType::RRI;
                     if (is13or15(Rn) || is13or15(Rd))
                     {
@@ -2265,14 +2265,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Subtract SUB (immediate) on page A7 - 402
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::SUB;
-                        instr.flags.S = _1BIT(encoding_high >> 4);
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::SUB;
+                        instr.flags.S      = _1BIT(encoding_high >> 4);
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         auto [imm_ok, val] = arm_functions::thumb_expand_imm(instr.imm);
                         CHECK_IMM(imm_ok);
-                        instr.imm = val;
+                        instr.imm          = val;
                         instr.operand_type = OperandType::RRI;
                         if (is13(Rn))
                         {
@@ -2295,12 +2295,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Compare CMP (immediate) on page A7 - 223
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::CMP;
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::CMP;
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         auto [imm_ok, val] = arm_functions::thumb_expand_imm(instr.imm);
                         CHECK_IMM(imm_ok);
-                        instr.imm = val;
+                        instr.imm          = val;
                         instr.operand_type = OperandType::RI;
                         if (is15(Rn))
                         {
@@ -2313,14 +2313,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Reverse Subtract RSB (immediate) on page A7 - 341
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::RSB;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                    instr.name         = Mnemonic::RSB;
+                    instr.flags.S      = _1BIT(encoding_high >> 4);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                     auto [imm_ok, val] = arm_functions::thumb_expand_imm(instr.imm);
                     CHECK_IMM(imm_ok);
-                    instr.imm = val;
+                    instr.imm          = val;
                     instr.operand_type = OperandType::RRI;
                     if (is13or15(Rn) || is13or15(Rd))
                     {
@@ -2329,11 +2329,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     return {ReturnCode::OK, instr};
                 }
             }
-            else if (_1BIT(op2 >> 5) == 1 && op == 0) // 0bx1xxxxx
+            else if (_1BIT(op2 >> 5) == 1 && op == 0)    // 0bx1xxxxx
             {
                 // Data processing (plain binary immediate) on page A5 - 141
 
-                op = _5BIT(encoding_high >> 4);
+                op    = _5BIT(encoding_high >> 4);
                 u8 Rn = _4BIT(encoding_high);
 
                 if (op == 0b00000)
@@ -2342,10 +2342,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Add Wide, 12 - bit ADD (immediate) on page A7 - 190 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::ADDW;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::ADDW;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RRI;
                         if (is13(Rn))
                         {
@@ -2368,15 +2368,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Form PC - relative Address ADR on page A7 - 198 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        // todo revert comment, just for unicorn disassembler conformity
-                        //instr.name = Mnemonic::ADR;
-                        instr.name = Mnemonic::ADDW;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
-                        instr.flags.add = true;
-                        //instr.operand_type = OperandType::RI;
-                        instr.operand_type = OperandType::RRI;
+                        instr.name         = Mnemonic::ADR;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.flags.add    = true;
+                        instr.operand_type = OperandType::RI;
                         if (is13or15(Rd))
                         {
                             THROW_UNPREDICTABLE;
@@ -2388,9 +2385,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Move Wide, 16 - bit MOV (immediate) on page A7 - 291 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::MOVW;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.imm = (_4BIT(encoding_high) << 12) | (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                    instr.name         = Mnemonic::MOVW;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.imm          = (_4BIT(encoding_high) << 12) | (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                     instr.operand_type = OperandType::RI;
                     if (is13or15(Rd))
                     {
@@ -2404,10 +2401,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Subtract Wide, 12 - bit SUB (immediate) on page A7 - 402 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::SUBW;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.name         = Mnemonic::SUBW;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                         instr.operand_type = OperandType::RRI;
                         if (is13(Rn))
                         {
@@ -2430,15 +2427,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Form PC - relative Address ADR on page A7 - 198 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        // todo revert comment, just for unicorn disassembler conformity
-                        //instr.name = Mnemonic::ADR;
-                        instr.name = Mnemonic::SUBW;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.imm = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
-                        instr.flags.add = false;
+                        instr.name         = Mnemonic::ADR;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.imm          = (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                        instr.flags.add    = false;
                         instr.operand_type = OperandType::RI;
-                        //instr.operand_type = OperandType::RI;
                         if (is13or15(Rd))
                         {
                             THROW_UNPREDICTABLE;
@@ -2450,9 +2444,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Move Top, 16 - bit MOVT on page A7 - 296 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::MOVT;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.imm = (_4BIT(encoding_high) << 12) | (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
+                    instr.name         = Mnemonic::MOVT;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.imm          = (_4BIT(encoding_high) << 12) | (_1BIT(encoding_high >> 10) << 11) | (_3BIT(encoding_low >> 12) << 8) | _8BIT(encoding_low);
                     instr.operand_type = OperandType::RI;
                     if (is13or15(Rd))
                     {
@@ -2464,14 +2458,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Signed Saturate SSAT on page A7 - 375 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::SSAT;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.imm = _5BIT(encoding_low) + 1;
+                    instr.name              = Mnemonic::SSAT;
+                    instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn                = (Register)_4BIT(encoding_high);
+                    instr.imm               = _5BIT(encoding_low) + 1;
                     auto [shift_t, shift_n] = arm_functions::decode_imm_shift(0b00, (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                    instr.shift_type = shift_t;
-                    instr.shift_amount = shift_n;
-                    instr.operand_type = OperandType::RRI;
+                    instr.shift_type        = shift_t;
+                    instr.shift_amount      = shift_n;
+                    instr.operand_type      = OperandType::RRI;
                     if (_1BIT(encoding_high >> 10) != 0 || _1BIT(encoding_low >> 5) != 0)
                     {
                         THROW_UNEXPECTED;
@@ -2491,11 +2485,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Signed Bit Field Extract SBFX on page A7 - 349 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::SBFX;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.imm = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
-                    instr.imm2 = _5BIT(encoding_low) + 1;
+                    instr.name         = Mnemonic::SBFX;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.imm          = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
+                    instr.imm2         = _5BIT(encoding_low) + 1;
                     instr.operand_type = OperandType::RRII;
                     if (_1BIT(encoding_high >> 10) != 0 || _1BIT(encoding_low >> 5) != 0)
                     {
@@ -2514,16 +2508,16 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         // Bit Field Insert BFI on page A7 - 208 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
                         instr.name = Mnemonic::BFI;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        u32 lsb = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
-                        u32 msb = _5BIT(encoding_low);
+                        instr.Rd   = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn   = (Register)_4BIT(encoding_high);
+                        u32 lsb    = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
+                        u32 msb    = _5BIT(encoding_low);
                         if (lsb > msb)
                         {
                             THROW_UNPREDICTABLE;
                         }
-                        instr.imm = lsb;            // lsb
-                        instr.imm2 = msb - lsb + 1; // width
+                        instr.imm          = lsb;              // lsb
+                        instr.imm2         = msb - lsb + 1;    // width
                         instr.operand_type = OperandType::RRII;
                         if (is13or15(Rd) || is13(Rn))
                         {
@@ -2536,15 +2530,15 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         // Bit Field Clear BFC on page A7 - 207 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
                         instr.name = Mnemonic::BFC;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        u32 lsb = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
-                        u32 msb = _5BIT(encoding_low);
+                        instr.Rd   = (Register)_4BIT(encoding_low >> 8);
+                        u32 lsb    = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
+                        u32 msb    = _5BIT(encoding_low);
                         if (lsb > msb)
                         {
                             THROW_UNPREDICTABLE;
                         }
-                        instr.imm = lsb;            // lsb
-                        instr.imm2 = msb - lsb + 1; // width
+                        instr.imm          = lsb;              // lsb
+                        instr.imm2         = msb - lsb + 1;    // width
                         instr.operand_type = OperandType::RRII;
                         if (is13or15(Rd))
                         {
@@ -2557,14 +2551,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Unsigned Saturate USAT on page A7 - 444 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::USAT;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.imm = _5BIT(encoding_low);
+                    instr.name              = Mnemonic::USAT;
+                    instr.Rd                = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn                = (Register)_4BIT(encoding_high);
+                    instr.imm               = _5BIT(encoding_low);
                     auto [shift_t, shift_n] = arm_functions::decode_imm_shift(0b00, (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6));
-                    instr.shift_type = shift_t;
-                    instr.shift_amount = shift_n;
-                    instr.operand_type = OperandType::RRI;
+                    instr.shift_type        = shift_t;
+                    instr.shift_amount      = shift_n;
+                    instr.operand_type      = OperandType::RRI;
                     if (_1BIT(encoding_high >> 10) != 0 || _1BIT(encoding_low >> 5) != 0)
                     {
                         THROW_UNEXPECTED;
@@ -2584,11 +2578,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Unsigned Bit Field Extract UBFX on page A7 - 424 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::UBFX;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.imm = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
-                    instr.imm2 = _5BIT(encoding_low) + 1;
+                    instr.name         = Mnemonic::UBFX;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.imm          = (_3BIT(encoding_low >> 12) << 2) | _2BIT(encoding_low >> 6);
+                    instr.imm2         = _5BIT(encoding_low) + 1;
                     instr.operand_type = OperandType::RRII;
                     if (_1BIT(encoding_high >> 10) != 0 || _1BIT(encoding_low >> 5) != 0)
                     {
@@ -2601,11 +2595,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     return {ReturnCode::OK, instr};
                 }
             }
-            else if (op == 1) // 0bxxxxxxx
+            else if (op == 1)    // 0bxxxxxxx
             {
                 // Branches and miscellaneous control on page A5 - 142
 
-                op = _7BIT(encoding_high >> 4);
+                op  = _7BIT(encoding_high >> 4);
                 op1 = _3BIT(encoding_low >> 12);
 
                 if (op1 == 0b000 || op1 == 0b010)
@@ -2614,13 +2608,13 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Conditional branch B on page A7 - 205
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::B;
-                        u32 s = _1BIT(encoding_high >> 10);
-                        u32 j1 = _1BIT(encoding_low >> 13);
-                        u32 j2 = _1BIT(encoding_low >> 11);
+                        instr.name      = Mnemonic::B;
+                        u32 s           = _1BIT(encoding_high >> 10);
+                        u32 j1          = _1BIT(encoding_low >> 13);
+                        u32 j2          = _1BIT(encoding_low >> 11);
                         instr.condition = (Condition)_4BIT(encoding_high >> 6);
-                        instr.imm = (s << 19) | (j1 << 18) | (j2 << 17) | (_6BIT(encoding_high) << 11) | _11BIT(encoding_low);
-                        instr.imm = arm_functions::sign_extend(instr.imm << 1, 21);
+                        instr.imm       = (s << 19) | (j1 << 18) | (j2 << 17) | (_6BIT(encoding_high) << 11) | _11BIT(encoding_low);
+                        instr.imm       = arm_functions::sign_extend(instr.imm << 1, 21);
 
                         if (in_IT_block)
                         {
@@ -2641,9 +2635,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             THROW_UNEXPECTED;
                         }
-                        instr.name = Mnemonic::MSR;
-                        instr.Rn = (Register)(_4BIT(encoding_high));
-                        instr.imm = _8BIT(encoding_low);
+                        instr.name         = Mnemonic::MSR;
+                        instr.Rn           = (Register)(_4BIT(encoding_high));
+                        instr.imm          = _8BIT(encoding_low);
                         instr.operand_type = OperandType::RI;
 
                         if (is13or15(Rn) || instr.imm == 4 || (instr.imm > 9 && instr.imm < 16) || instr.imm > 20)
@@ -2836,9 +2830,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             THROW_UNEXPECTED;
                         }
-                        instr.name = Mnemonic::MRS;
-                        instr.Rd = (Register)(_4BIT(encoding_low >> 8));
-                        instr.imm = _8BIT(encoding_low);
+                        instr.name         = Mnemonic::MRS;
+                        instr.Rd           = (Register)(_4BIT(encoding_low >> 8));
+                        instr.imm          = _8BIT(encoding_low);
                         instr.operand_type = OperandType::RI;
 
                         if (is13(Rd) || instr.imm == 4 || (instr.imm > 9 && instr.imm < 16) || instr.imm > 20)
@@ -2860,11 +2854,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     // Branch B on page A7 - 205
                     REQUIRE_ARCH(Architecture::ARMv7M);
                     instr.name = Mnemonic::B;
-                    u32 s = _1BIT(encoding_high >> 10);
-                    u32 i1 = !(_1BIT(encoding_low >> 13) ^ s);
-                    u32 i2 = !(_1BIT(encoding_low >> 11) ^ s);
-                    instr.imm = (s << 23) | (i1 << 22) | (i2 << 21) | (_10BIT(encoding_high) << 11) | _11BIT(encoding_low);
-                    instr.imm = arm_functions::sign_extend(instr.imm << 1, 25);
+                    u32 s      = _1BIT(encoding_high >> 10);
+                    u32 i1     = !(_1BIT(encoding_low >> 13) ^ s);
+                    u32 i2     = !(_1BIT(encoding_low >> 11) ^ s);
+                    instr.imm  = (s << 23) | (i1 << 22) | (i2 << 21) | (_10BIT(encoding_high) << 11) | _11BIT(encoding_low);
+                    instr.imm  = arm_functions::sign_extend(instr.imm << 1, 25);
 
                     if (in_IT_block && !last_in_IT_block)
                     {
@@ -2878,11 +2872,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Branch with Link BL on page A7 - 213
                     instr.name = Mnemonic::BL;
-                    u32 s = _1BIT(encoding_high >> 10);
-                    u32 i1 = !(_1BIT(encoding_low >> 13) ^ s);
-                    u32 i2 = !(_1BIT(encoding_low >> 11) ^ s);
-                    instr.imm = (s << 23) | (i1 << 22) | (i2 << 21) | (_10BIT(encoding_high) << 11) | _11BIT(encoding_low);
-                    instr.imm = arm_functions::sign_extend(instr.imm << 1, 25);
+                    u32 s      = _1BIT(encoding_high >> 10);
+                    u32 i1     = !(_1BIT(encoding_low >> 13) ^ s);
+                    u32 i2     = !(_1BIT(encoding_low >> 11) ^ s);
+                    instr.imm  = (s << 23) | (i1 << 22) | (i2 << 21) | (_10BIT(encoding_high) << 11) | _11BIT(encoding_low);
+                    instr.imm  = arm_functions::sign_extend(instr.imm << 1, 25);
 
                     if (in_IT_block && !last_in_IT_block)
                     {
@@ -2896,7 +2890,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
         }
         else if (op1 == 0b11)
         {
-            if (_3BIT(op2 >> 4) == 0 && _1BIT(op2) == 0) // 0b000xxx0
+            if (_3BIT(op2 >> 4) == 0 && _1BIT(op2) == 0)    // 0b000xxx0
             {
                 // Store single data item on page A5 - 149
 
@@ -2908,19 +2902,19 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     // Store Register Byte STRB (immediate) on page A7 - 389
                     REQUIRE_ARCH(Architecture::ARMv7M);
                     instr.name = Mnemonic::STRB;
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
+                    instr.Rn   = (Register)_4BIT(encoding_high);
+                    instr.Rd   = (Register)_4BIT(encoding_low >> 12);
 
-                    if (op1 == 0b000) // 8bit immediate
+                    if (op1 == 0b000)    // 8bit immediate
                     {
                         if (_3BIT(encoding_low >> 8) == 0b110)
                         {
                             instr.name = Mnemonic::STRBT;
                         }
                         instr.flags.index = _1BIT(encoding_low >> 10) == 1;
-                        instr.flags.add = _1BIT(encoding_low >> 9) == 1;
+                        instr.flags.add   = _1BIT(encoding_low >> 9) == 1;
                         instr.flags.wback = _1BIT(encoding_low >> 8) == 1;
-                        instr.imm = _8BIT(encoding_low);
+                        instr.imm         = _8BIT(encoding_low);
                         if (!instr.flags.index && !instr.flags.wback)
                         {
                             THROW_UNDEFINED;
@@ -2930,11 +2924,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             THROW_UNPREDICTABLE;
                         }
                     }
-                    else // 12bit immediate
+                    else    // 12bit immediate
                     {
-                        instr.imm = _12BIT(encoding_low);
+                        instr.imm         = _12BIT(encoding_low);
                         instr.flags.index = true;
-                        instr.flags.add = true;
+                        instr.flags.add   = true;
                     }
                     instr.operand_type = OperandType::RRI;
                     if (instr.Rn == 0b1111)
@@ -2951,14 +2945,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Store Register Byte STRB (register) on page A7 - 391
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::STRB;
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                    instr.Rm = (Register)_4BIT(encoding_low);
-                    instr.shift_type = ShiftType::LSL;
+                    instr.name         = Mnemonic::STRB;
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
+                    instr.shift_type   = ShiftType::LSL;
                     instr.shift_amount = _2BIT(encoding_low >> 4);
-                    instr.flags.index = true;
-                    instr.flags.add = true;
+                    instr.flags.index  = true;
+                    instr.flags.add    = true;
                     instr.operand_type = OperandType::RRR;
                     if (instr.Rn == 0b1111)
                     {
@@ -2975,19 +2969,19 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     // Store Register Halfword STRH (immediate) on page A7 - 397
                     REQUIRE_ARCH(Architecture::ARMv7M);
                     instr.name = Mnemonic::STRH;
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
+                    instr.Rn   = (Register)_4BIT(encoding_high);
+                    instr.Rd   = (Register)_4BIT(encoding_low >> 12);
 
-                    if (op1 == 0b001) // 8bit immediate
+                    if (op1 == 0b001)    // 8bit immediate
                     {
                         if (_3BIT(encoding_low >> 8) == 0b110)
                         {
                             instr.name = Mnemonic::STRHT;
                         }
                         instr.flags.index = _1BIT(encoding_low >> 10) == 1;
-                        instr.flags.add = _1BIT(encoding_low >> 9) == 1;
+                        instr.flags.add   = _1BIT(encoding_low >> 9) == 1;
                         instr.flags.wback = _1BIT(encoding_low >> 8) == 1;
-                        instr.imm = _8BIT(encoding_low);
+                        instr.imm         = _8BIT(encoding_low);
                         if (!instr.flags.index && !instr.flags.wback)
                         {
                             THROW_UNDEFINED;
@@ -2997,11 +2991,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             THROW_UNPREDICTABLE;
                         }
                     }
-                    else // 12bit immediate
+                    else    // 12bit immediate
                     {
-                        instr.imm = _12BIT(encoding_low);
+                        instr.imm         = _12BIT(encoding_low);
                         instr.flags.index = true;
-                        instr.flags.add = true;
+                        instr.flags.add   = true;
                     }
                     instr.operand_type = OperandType::RRI;
                     if (instr.Rn == 0b1111)
@@ -3018,14 +3012,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Store Register Halfword STRH (register) on page A7 - 399
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::STRH;
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                    instr.Rm = (Register)_4BIT(encoding_low);
-                    instr.shift_type = ShiftType::LSL;
+                    instr.name         = Mnemonic::STRH;
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
+                    instr.shift_type   = ShiftType::LSL;
                     instr.shift_amount = _2BIT(encoding_low >> 4);
-                    instr.flags.index = true;
-                    instr.flags.add = true;
+                    instr.flags.index  = true;
+                    instr.flags.add    = true;
                     instr.operand_type = OperandType::RRR;
                     if (instr.Rn == 0b1111)
                     {
@@ -3042,34 +3036,33 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     // Store Register STR (immediate) on page A7 - 386
                     REQUIRE_ARCH(Architecture::ARMv7M);
 
-                    // todo revert comment, just for unicorn disassembler conformity
-                    // if (_4BIT(encoding_high) == 0b1101 && _3BIT(encoding_low >> 8) == 0b101 && _8BIT(encoding_low) == 0b100) // PUSH single register
-                    // {
-                    //     instr.name = Mnemonic::PUSH;
-                    //     u8 t = encoding_low >> 12;
-                    //     instr.imm = 1 << t;
-                    //     instr.flags.unaligned_allowed = true;
-                    //     if (t == 13 || t == 15)
-                    //     {
-                    //         THROW_UNPREDICTABLE;
-                    //     }
-                    //     instr.operand_type = OperandType::I;
-                    //     return {ReturnCode::OK, instr};
-                    // }
+                    if (_4BIT(encoding_high) == 0b1101 && _3BIT(encoding_low >> 8) == 0b101 && _8BIT(encoding_low) == 0b100)    // PUSH single register
+                    {
+                        instr.name                    = Mnemonic::PUSH;
+                        u8 t                          = encoding_low >> 12;
+                        instr.imm                     = 1 << t;
+                        instr.flags.unaligned_allowed = true;
+                        if (t == 13 || t == 15)
+                        {
+                            THROW_UNPREDICTABLE;
+                        }
+                        instr.operand_type = OperandType::I;
+                        return {ReturnCode::OK, instr};
+                    }
 
                     instr.name = Mnemonic::STR;
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                    if (op1 == 0b010) // 8bit immediate
+                    instr.Rn   = (Register)_4BIT(encoding_high);
+                    instr.Rd   = (Register)_4BIT(encoding_low >> 12);
+                    if (op1 == 0b010)    // 8bit immediate
                     {
                         if (_3BIT(encoding_low >> 8) == 0b110)
                         {
                             instr.name = Mnemonic::STRT;
                         }
                         instr.flags.index = _1BIT(encoding_low >> 10) == 1;
-                        instr.flags.add = _1BIT(encoding_low >> 9) == 1;
+                        instr.flags.add   = _1BIT(encoding_low >> 9) == 1;
                         instr.flags.wback = _1BIT(encoding_low >> 8) == 1;
-                        instr.imm = _8BIT(encoding_low);
+                        instr.imm         = _8BIT(encoding_low);
                         if (!instr.flags.index && !instr.flags.wback)
                         {
                             THROW_UNDEFINED;
@@ -3079,11 +3072,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             THROW_UNPREDICTABLE;
                         }
                     }
-                    else // 12bit immediate
+                    else    // 12bit immediate
                     {
-                        instr.imm = _12BIT(encoding_low);
+                        instr.imm         = _12BIT(encoding_low);
                         instr.flags.index = true;
-                        instr.flags.add = true;
+                        instr.flags.add   = true;
                     }
                     instr.operand_type = OperandType::RRI;
                     if (instr.Rn == 0b1111)
@@ -3100,14 +3093,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Store Register STR (register) on page A7 - 388
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::STR;
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                    instr.Rm = (Register)_4BIT(encoding_low);
-                    instr.shift_type = ShiftType::LSL;
+                    instr.name         = Mnemonic::STR;
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
+                    instr.shift_type   = ShiftType::LSL;
                     instr.shift_amount = _2BIT(encoding_low >> 4);
-                    instr.flags.index = true;
-                    instr.flags.add = true;
+                    instr.flags.index  = true;
+                    instr.flags.add    = true;
                     instr.operand_type = OperandType::RRR;
                     if (instr.Rn == 0b1111)
                     {
@@ -3120,12 +3113,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     return {ReturnCode::OK, instr};
                 }
             }
-            else if (_2BIT(op2 >> 5) == 0 && _3BIT(op2) == 0b001) // 0b00xx001
+            else if (_2BIT(op2 >> 5) == 0 && _3BIT(op2) == 0b001)    // 0b00xx001
             {
                 // Load byte, memory hints on page A5 - 148
 
-                op1 = _2BIT(encoding_high >> 7);
-                op2 = _6BIT(encoding_low >> 6);
+                op1   = _2BIT(encoding_high >> 7);
+                op2   = _6BIT(encoding_low >> 6);
                 u8 Rn = _4BIT(encoding_high);
                 u8 Rt = _4BIT(encoding_low >> 12);
 
@@ -3137,10 +3130,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Byte LDRB (literal) on page A7 - 254
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRB;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.imm = _12BIT(encoding_low);
-                            instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                            instr.name         = Mnemonic::LDRB;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.imm          = _12BIT(encoding_low);
+                            instr.flags.add    = _1BIT(encoding_high >> 7) == 1;
                             instr.operand_type = OperandType::RI;
                             if (is13(Rd))
                             {
@@ -3152,10 +3145,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Signed Byte LDRSB (literal) on page A7 - 272
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRSB;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.imm = _12BIT(encoding_low);
-                            instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                            instr.name         = Mnemonic::LDRSB;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.imm          = _12BIT(encoding_low);
+                            instr.flags.add    = _1BIT(encoding_high >> 7) == 1;
                             instr.operand_type = OperandType::RI;
                             if (is13(Rd))
                             {
@@ -3170,23 +3163,23 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Byte LDRB (immediate) on page A7 - 252
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRB;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = Mnemonic::LDRB;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RRI;
 
-                            if (op1 == 0b01) // 12 bit
+                            if (op1 == 0b01)    // 12 bit
                             {
-                                instr.imm = _12BIT(encoding_low);
+                                instr.imm         = _12BIT(encoding_low);
                                 instr.flags.index = true;
-                                instr.flags.add = true;
+                                instr.flags.add   = true;
                             }
-                            else // 8 bit
+                            else    // 8 bit
                             {
                                 instr.flags.index = _1BIT(encoding_low >> 10) == 1;
-                                instr.flags.add = _1BIT(encoding_low >> 9) == 1;
+                                instr.flags.add   = _1BIT(encoding_low >> 9) == 1;
                                 instr.flags.wback = _1BIT(encoding_low >> 8) == 1;
-                                instr.imm = _8BIT(encoding_low);
+                                instr.imm         = _8BIT(encoding_low);
                                 if (!instr.flags.index && !instr.flags.wback)
                                 {
                                     THROW_UNDEFINED;
@@ -3213,11 +3206,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Load Register Byte Unprivileged LDRBT on page A7 - 256
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LDRBT;
-                                instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.flags.add = true;
-                                instr.imm = _8BIT(encoding_low);
+                                instr.name         = Mnemonic::LDRBT;
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.flags.add    = true;
+                                instr.imm          = _8BIT(encoding_low);
                                 instr.operand_type = OperandType::RRI;
                                 if (is13or15(Rd))
                                 {
@@ -3229,14 +3222,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Load Register Byte LDRB (register) on page A7 - 255
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LDRB;
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                                instr.Rm = (Register)_4BIT(encoding_low);
-                                instr.shift_type = ShiftType::LSL;
+                                instr.name         = Mnemonic::LDRB;
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                                instr.Rm           = (Register)_4BIT(encoding_low);
+                                instr.shift_type   = ShiftType::LSL;
                                 instr.shift_amount = _2BIT(encoding_low >> 4);
-                                instr.flags.index = true;
-                                instr.flags.add = true;
+                                instr.flags.index  = true;
+                                instr.flags.add    = true;
                                 instr.operand_type = OperandType::RRR;
                                 if (is13(Rd) || is13or15(Rm))
                                 {
@@ -3249,23 +3242,23 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Signed Byte LDRSB (immediate) on page A7 - 270
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRSB;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = Mnemonic::LDRSB;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RRI;
 
-                            if (op1 == 0b11) // 12 bit
+                            if (op1 == 0b11)    // 12 bit
                             {
-                                instr.imm = _12BIT(encoding_low);
+                                instr.imm         = _12BIT(encoding_low);
                                 instr.flags.index = true;
-                                instr.flags.add = true;
+                                instr.flags.add   = true;
                             }
-                            else // 8 bit
+                            else    // 8 bit
                             {
                                 instr.flags.index = _1BIT(encoding_low >> 10) == 1;
-                                instr.flags.add = _1BIT(encoding_low >> 9) == 1;
+                                instr.flags.add   = _1BIT(encoding_low >> 9) == 1;
                                 instr.flags.wback = _1BIT(encoding_low >> 8) == 1;
-                                instr.imm = _8BIT(encoding_low);
+                                instr.imm         = _8BIT(encoding_low);
                                 if (!instr.flags.index && !instr.flags.wback)
                                 {
                                     THROW_UNDEFINED;
@@ -3288,12 +3281,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Load Register Signed Byte Unprivileged LDRSBT on page A7 - 274
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LDRSBT;
-                                instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.imm = _8BIT(encoding_low);
+                                instr.name         = Mnemonic::LDRSBT;
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.imm          = _8BIT(encoding_low);
                                 instr.operand_type = OperandType::RRI;
-                                instr.flags.add = true;
+                                instr.flags.add    = true;
                                 if (is13or15(Rd))
                                 {
                                     THROW_UNPREDICTABLE
@@ -3304,14 +3297,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Load Register Signed Byte LDRSB (register) on page A7 - 273
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LDRSB;
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                                instr.Rm = (Register)_4BIT(encoding_low);
-                                instr.shift_type = ShiftType::LSL;
+                                instr.name         = Mnemonic::LDRSB;
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                                instr.Rm           = (Register)_4BIT(encoding_low);
+                                instr.shift_type   = ShiftType::LSL;
                                 instr.shift_amount = _2BIT(encoding_low >> 4);
-                                instr.flags.index = true;
-                                instr.flags.add = true;
+                                instr.flags.index  = true;
+                                instr.flags.add    = true;
                                 instr.operand_type = OperandType::RRR;
                                 if (is13(Rd) || is13or15(Rm))
                                 {
@@ -3328,9 +3321,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Preload Data PLD (literal) on page A7 - 314
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::PLD;
-                        instr.imm = _12BIT(encoding_low);
-                        instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                        instr.name         = Mnemonic::PLD;
+                        instr.imm          = _12BIT(encoding_low);
+                        instr.flags.add    = _1BIT(encoding_high >> 7) == 1;
                         instr.operand_type = OperandType::I;
                         return {ReturnCode::OK, instr};
                     }
@@ -3341,11 +3334,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             // Preload Data PLD (immediate) on page A7 - 313
                             REQUIRE_ARCH(Architecture::ARMv7M);
                             instr.name = Mnemonic::PLD;
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.Rn   = (Register)_4BIT(encoding_high);
 
                             if (op1 == 0b01)
                             {
-                                instr.imm = _12BIT(encoding_low);
+                                instr.imm       = _12BIT(encoding_low);
                                 instr.flags.add = true;
                             }
                             else
@@ -3359,10 +3352,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Preload Data PLD (register) on page A7 - 315
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::PLD;
-                            instr.Rn = (Register)_4BIT(encoding_high);
-                            instr.Rm = (Register)_4BIT(encoding_low);
-                            instr.shift_type = ShiftType::LSL;
+                            instr.name         = Mnemonic::PLD;
+                            instr.Rn           = (Register)_4BIT(encoding_high);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
+                            instr.shift_type   = ShiftType::LSL;
                             instr.shift_amount = _2BIT(encoding_low >> 4);
                             instr.operand_type = OperandType::RR;
                             if (is13or15(Rm))
@@ -3381,13 +3374,13 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             // Preload Instruction PLI (immediate, literal) on page A7 - 316
                             REQUIRE_ARCH(Architecture::ARMv7M);
                             instr.name = Mnemonic::PLI;
-                            instr.Rn = (Register)_4BIT(encoding_high);
-                            instr.imm = _12BIT(encoding_low);
-                            if (op1 == 0b10 && op2 >> 2 == 0b1100 && Rn != 0b1111) // 8bit
+                            instr.Rn   = (Register)_4BIT(encoding_high);
+                            instr.imm  = _12BIT(encoding_low);
+                            if (op1 == 0b10 && op2 >> 2 == 0b1100 && Rn != 0b1111)    // 8bit
                             {
                                 instr.imm = _8BIT(encoding_low);
                             }
-                            instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                            instr.flags.add    = _1BIT(encoding_high >> 7) == 1;
                             instr.operand_type = OperandType::RI;
                             return {ReturnCode::OK, instr};
                         }
@@ -3397,10 +3390,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Preload Instruction PLI (register) on page A7 - 318
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::PLI;
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.Rm = (Register)_4BIT(encoding_low);
-                                instr.shift_type = ShiftType::LSL;
+                                instr.name         = Mnemonic::PLI;
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.Rm           = (Register)_4BIT(encoding_low);
+                                instr.shift_type   = ShiftType::LSL;
                                 instr.shift_amount = _2BIT(encoding_low >> 4);
                                 instr.operand_type = OperandType::RR;
                                 if (is13or15(Rm))
@@ -3418,12 +3411,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     }
                 }
             }
-            else if (_2BIT(op2 >> 5) == 0 && _3BIT(op2) == 0b011) // 0b00xx011
+            else if (_2BIT(op2 >> 5) == 0 && _3BIT(op2) == 0b011)    // 0b00xx011
             {
                 // Load halfword, memory hints on page A5 - 147
 
-                op1 = _2BIT(encoding_high >> 7);
-                op2 = _6BIT(encoding_low >> 6);
+                op1   = _2BIT(encoding_high >> 7);
+                op2   = _6BIT(encoding_low >> 6);
                 u8 Rn = _4BIT(encoding_high);
                 u8 Rt = _4BIT(encoding_low >> 12);
 
@@ -3435,10 +3428,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Halfword LDRH (literal) on page A7 - 266
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRH;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.imm = _12BIT(encoding_low);
-                            instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                            instr.name         = Mnemonic::LDRH;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.imm          = _12BIT(encoding_low);
+                            instr.flags.add    = _1BIT(encoding_high >> 7) == 1;
                             instr.operand_type = OperandType::RI;
                             if (is13(Rd))
                             {
@@ -3450,10 +3443,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Signed Halfword LDRSH (literal) on page A7 - 277
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRSH;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.imm = _12BIT(encoding_low);
-                            instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                            instr.name         = Mnemonic::LDRSH;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.imm          = _12BIT(encoding_low);
+                            instr.flags.add    = _1BIT(encoding_high >> 7) == 1;
                             instr.operand_type = OperandType::RI;
                             if (is13(Rd))
                             {
@@ -3468,23 +3461,23 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Halfword LDRH (immediate) on page A7 - 264
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRH;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = Mnemonic::LDRH;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RRI;
 
-                            if (op1 == 0b01) // 12 bit
+                            if (op1 == 0b01)    // 12 bit
                             {
-                                instr.imm = _12BIT(encoding_low);
+                                instr.imm         = _12BIT(encoding_low);
                                 instr.flags.index = true;
-                                instr.flags.add = true;
+                                instr.flags.add   = true;
                             }
-                            else // 8 bit
+                            else    // 8 bit
                             {
                                 instr.flags.index = _1BIT(encoding_low >> 10) == 1;
-                                instr.flags.add = _1BIT(encoding_low >> 9) == 1;
+                                instr.flags.add   = _1BIT(encoding_low >> 9) == 1;
                                 instr.flags.wback = _1BIT(encoding_low >> 8) == 1;
-                                instr.imm = _8BIT(encoding_low);
+                                instr.imm         = _8BIT(encoding_low);
                                 if (!instr.flags.index && !instr.flags.wback)
                                 {
                                     THROW_UNDEFINED;
@@ -3507,14 +3500,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Load Register Halfword LDRH (register) on page A7 - 267
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LDRH;
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                                instr.Rm = (Register)_4BIT(encoding_low);
-                                instr.shift_type = ShiftType::LSL;
+                                instr.name         = Mnemonic::LDRH;
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                                instr.Rm           = (Register)_4BIT(encoding_low);
+                                instr.shift_type   = ShiftType::LSL;
                                 instr.shift_amount = _2BIT(encoding_low >> 4);
-                                instr.flags.index = true;
-                                instr.flags.add = true;
+                                instr.flags.index  = true;
+                                instr.flags.add    = true;
                                 instr.operand_type = OperandType::RRR;
                                 if (is13(Rd) || is13or15(Rm))
                                 {
@@ -3526,11 +3519,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Load Register Halfword Unprivileged LDRHT on page A7 - 269
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LDRHT;
-                                instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.flags.add = true;
-                                instr.imm = _8BIT(encoding_low);
+                                instr.name         = Mnemonic::LDRHT;
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.flags.add    = true;
+                                instr.imm          = _8BIT(encoding_low);
                                 instr.operand_type = OperandType::RRI;
                                 if (is13or15(Rd))
                                 {
@@ -3543,23 +3536,23 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Signed Halfword LDRSH (immediate) on page A7 - 275
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRSH;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
+                            instr.name         = Mnemonic::LDRSH;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
                             instr.operand_type = OperandType::RRI;
 
-                            if (op1 == 0b11) // 12 bit
+                            if (op1 == 0b11)    // 12 bit
                             {
-                                instr.imm = _12BIT(encoding_low);
+                                instr.imm         = _12BIT(encoding_low);
                                 instr.flags.index = true;
-                                instr.flags.add = true;
+                                instr.flags.add   = true;
                             }
-                            else // 8 bit
+                            else    // 8 bit
                             {
                                 instr.flags.index = _1BIT(encoding_low >> 10) == 1;
-                                instr.flags.add = _1BIT(encoding_low >> 9) == 1;
+                                instr.flags.add   = _1BIT(encoding_low >> 9) == 1;
                                 instr.flags.wback = _1BIT(encoding_low >> 8) == 1;
-                                instr.imm = _8BIT(encoding_low);
+                                instr.imm         = _8BIT(encoding_low);
                                 if (!instr.flags.index && !instr.flags.wback)
                                 {
                                     THROW_UNDEFINED;
@@ -3582,14 +3575,14 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Load Register Signed Halfword LDRSH (register) on page A7 - 278
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LDRSH;
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                                instr.Rm = (Register)_4BIT(encoding_low);
-                                instr.shift_type = ShiftType::LSL;
+                                instr.name         = Mnemonic::LDRSH;
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                                instr.Rm           = (Register)_4BIT(encoding_low);
+                                instr.shift_type   = ShiftType::LSL;
                                 instr.shift_amount = _2BIT(encoding_low >> 4);
-                                instr.flags.index = true;
-                                instr.flags.add = true;
+                                instr.flags.index  = true;
+                                instr.flags.add    = true;
                                 instr.operand_type = OperandType::RRR;
                                 if (is13(Rd) || is13or15(Rm))
                                 {
@@ -3601,12 +3594,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             {
                                 // Load Register Signed Halfword Unprivileged LDRSHT on page A7 - 280
                                 REQUIRE_ARCH(Architecture::ARMv7M);
-                                instr.name = Mnemonic::LDRSHT;
-                                instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                                instr.Rn = (Register)_4BIT(encoding_high);
-                                instr.imm = _8BIT(encoding_low);
+                                instr.name         = Mnemonic::LDRSHT;
+                                instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                                instr.Rn           = (Register)_4BIT(encoding_high);
+                                instr.imm          = _8BIT(encoding_low);
                                 instr.operand_type = OperandType::RRI;
-                                instr.flags.add = true;
+                                instr.flags.add    = true;
                                 if (is13or15(Rd))
                                 {
                                     THROW_UNPREDICTABLE;
@@ -3651,12 +3644,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     }
                 }
             }
-            else if (_2BIT(op2 >> 5) == 0 && _3BIT(op2) == 0b101) // 0b00xx101
+            else if (_2BIT(op2 >> 5) == 0 && _3BIT(op2) == 0b101)    // 0b00xx101
             {
                 // Load word on page A5 - 146
 
-                op1 = _2BIT(encoding_high >> 7);
-                op2 = _6BIT(encoding_low >> 6);
+                op1   = _2BIT(encoding_high >> 7);
+                op2   = _6BIT(encoding_low >> 6);
                 u8 Rn = _4BIT(encoding_high);
 
                 if (Rn != 0b1111)
@@ -3666,38 +3659,37 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         // Load Register LDR (immediate) on page A7 - 246
                         REQUIRE_ARCH(Architecture::ARMv7M);
 
-                        // todo revert comment, just for unicorn disassembler conformity
-                        // if (_4BIT(encoding_high) == 0b1101 && _3BIT(encoding_low >> 8) == 0b011 && _8BIT(encoding_low) == 0b100) // POP single register
-                        // {
-                        //     instr.name = Mnemonic::POP;
-                        //     u8 t = encoding_low >> 12;
-                        //     instr.imm = 1 << t;
-                        //     instr.flags.unaligned_allowed = true;
-                        //     instr.operand_type = OperandType::I;
-                        //     if (t == 13 || (t == 15 && in_IT_block && !last_in_IT_block))
-                        //     {
-                        //         THROW_UNPREDICTABLE;
-                        //     }
-                        //     return {ReturnCode::OK, instr};
-                        // }
+                        if (_4BIT(encoding_high) == 0b1101 && _3BIT(encoding_low >> 8) == 0b011 && _8BIT(encoding_low) == 0b100)    // POP single register
+                        {
+                            instr.name                    = Mnemonic::POP;
+                            u8 t                          = encoding_low >> 12;
+                            instr.imm                     = 1 << t;
+                            instr.flags.unaligned_allowed = true;
+                            instr.operand_type            = OperandType::I;
+                            if (t == 13 || (t == 15 && in_IT_block && !last_in_IT_block))
+                            {
+                                THROW_UNPREDICTABLE;
+                            }
+                            return {ReturnCode::OK, instr};
+                        }
 
-                        instr.name = Mnemonic::LDR;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                        instr.Rn = (Register)_4BIT(encoding_high);
+                        instr.name         = Mnemonic::LDR;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
                         instr.operand_type = OperandType::RRI;
 
-                        if (op1 == 0b01) // 12 bit
+                        if (op1 == 0b01)    // 12 bit
                         {
-                            instr.imm = _12BIT(encoding_low);
+                            instr.imm         = _12BIT(encoding_low);
                             instr.flags.index = true;
-                            instr.flags.add = true;
+                            instr.flags.add   = true;
                         }
-                        else // 8 bit
+                        else    // 8 bit
                         {
                             instr.flags.index = _1BIT(encoding_low >> 10) == 1;
-                            instr.flags.add = _1BIT(encoding_low >> 9) == 1;
+                            instr.flags.add   = _1BIT(encoding_low >> 9) == 1;
                             instr.flags.wback = _1BIT(encoding_low >> 8) == 1;
-                            instr.imm = _8BIT(encoding_low);
+                            instr.imm         = _8BIT(encoding_low);
                             if (!instr.flags.index && !instr.flags.wback)
                             {
                                 THROW_UNDEFINED;
@@ -3708,7 +3700,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                             }
                         }
 
-                        if (is13(Rd) || (is15(Rd) && in_IT_block && !last_in_IT_block))
+                        if (is15(Rd) && in_IT_block && !last_in_IT_block)
                         {
                             THROW_UNPREDICTABLE;
                         }
@@ -3720,11 +3712,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register Unprivileged LDRT on page A7 - 281
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDRT;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rn = (Register)_4BIT(encoding_high);
-                            instr.flags.add = true;
-                            instr.imm = _8BIT(encoding_low);
+                            instr.name         = Mnemonic::LDRT;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
+                            instr.flags.add    = true;
+                            instr.imm          = _8BIT(encoding_low);
                             instr.operand_type = OperandType::RRI;
                             if (is13or15(Rd))
                             {
@@ -3736,11 +3728,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Load Register LDR (register) on page A7 - 250
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::LDR;
-                            instr.Rn = (Register)_4BIT(encoding_high);
-                            instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                            instr.Rm = (Register)_4BIT(encoding_low);
-                            instr.shift_type = ShiftType::LSL;
+                            instr.name         = Mnemonic::LDR;
+                            instr.Rn           = (Register)_4BIT(encoding_high);
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
+                            instr.shift_type   = ShiftType::LSL;
                             instr.shift_amount = _2BIT(encoding_low >> 4);
                             instr.operand_type = OperandType::RRR;
                             if ((is15(Rd) && in_IT_block && !last_in_IT_block) || is13or15(Rm))
@@ -3755,10 +3747,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Load Register LDR (literal) on page A7 - 248
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::LDR;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 12);
-                    instr.imm = _12BIT(encoding_low);
-                    instr.flags.add = _1BIT(encoding_high >> 7) == 1;
+                    instr.name         = Mnemonic::LDR;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 12);
+                    instr.imm          = _12BIT(encoding_low);
+                    instr.flags.add    = _1BIT(encoding_high >> 7) == 1;
                     instr.operand_type = OperandType::RI;
                     if (is15(Rd) && in_IT_block && !last_in_IT_block)
                     {
@@ -3767,29 +3759,29 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     return {ReturnCode::OK, instr};
                 }
             }
-            else if (_2BIT(op2 >> 5) == 0 && _3BIT(op2) == 0b111) // 0b00xx111
+            else if (_2BIT(op2 >> 5) == 0 && _3BIT(op2) == 0b111)    // 0b00xx111
             {
                 // UNDEFINED
                 THROW_UNDEFINED;
             }
-            else if (_3BIT(op2 >> 4) == 0b010) // 0b010xxxx
+            else if (_3BIT(op2 >> 4) == 0b010)    // 0b010xxxx
             {
                 // Data processing (register) on page A5 - 152
 
-                op1 = _4BIT(encoding_high >> 4);
-                op2 = _4BIT(encoding_low >> 4);
+                op1   = _4BIT(encoding_high >> 4);
+                op2   = _4BIT(encoding_low >> 4);
                 u8 Rn = _4BIT(encoding_high);
 
                 if (op2 == 0 && op1 >> 1 == 0b000)
                 {
                     // Logical Shift Left LSL (register) on page A7 - 283 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::LSL;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
-                    instr.shift_type = ShiftType::LSL;
+                    instr.name         = Mnemonic::LSL;
+                    instr.flags.S      = _1BIT(encoding_high >> 4);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
+                    instr.shift_type   = ShiftType::LSL;
                     instr.operand_type = OperandType::RRR;
                     if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn))
                     {
@@ -3801,12 +3793,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Logical Shift Right LSR (register) on page A7 - 285 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::LSR;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
-                    instr.shift_type = ShiftType::LSR;
+                    instr.name         = Mnemonic::LSR;
+                    instr.flags.S      = _1BIT(encoding_high >> 4);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
+                    instr.shift_type   = ShiftType::LSR;
                     instr.operand_type = OperandType::RRR;
                     if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn))
                     {
@@ -3818,12 +3810,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Arithmetic Shift Right ASR (register) on page A7 - 204 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::ASR;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
-                    instr.shift_type = ShiftType::ASR;
+                    instr.name         = Mnemonic::ASR;
+                    instr.flags.S      = _1BIT(encoding_high >> 4);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
+                    instr.shift_type   = ShiftType::ASR;
                     instr.operand_type = OperandType::RRR;
                     if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn))
                     {
@@ -3835,12 +3827,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Rotate Right ROR (register) on page A7 - 339 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::ROR;
-                    instr.flags.S = _1BIT(encoding_high >> 4);
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
-                    instr.shift_type = ShiftType::ROR;
+                    instr.name         = Mnemonic::ROR;
+                    instr.flags.S      = _1BIT(encoding_high >> 4);
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
+                    instr.shift_type   = ShiftType::ROR;
                     instr.operand_type = OperandType::RRR;
                     if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn))
                     {
@@ -4096,9 +4088,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Byte - Reverse Word REV on page A7 - 335 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::REV;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
+                            instr.name         = Mnemonic::REV;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
                             instr.operand_type = OperandType::RR;
                             if (is13or15(Rm) || is13or15(Rd) || _4BIT(encoding_high) != _4BIT(encoding_low))
                             {
@@ -4110,9 +4102,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Byte - Reverse Packed Halfword REV16 on page A7 - 336 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::REV16;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
+                            instr.name         = Mnemonic::REV16;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
                             instr.operand_type = OperandType::RR;
                             if (is13or15(Rm) || is13or15(Rd) || _4BIT(encoding_high) != _4BIT(encoding_low))
                             {
@@ -4124,9 +4116,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Reverse Bits RBIT on page A7 - 334 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::RBIT;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
+                            instr.name         = Mnemonic::RBIT;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
                             instr.operand_type = OperandType::RR;
                             if (is13or15(Rm) || is13or15(Rd) || _4BIT(encoding_high) != _4BIT(encoding_low))
                             {
@@ -4138,9 +4130,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Byte - Reverse Signed Halfword REVSH on page A7 - 337 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::REVSH;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
+                            instr.name         = Mnemonic::REVSH;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
                             instr.operand_type = OperandType::RR;
                             if (is13or15(Rm) || is13or15(Rd) || _4BIT(encoding_high) != _4BIT(encoding_low))
                             {
@@ -4158,9 +4150,9 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Count Leading Zeros CLZ on page A7 - 220 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::CLZ;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name         = Mnemonic::CLZ;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rm           = (Register)_4BIT(encoding_low);
                         instr.operand_type = OperandType::RR;
                         if (is13or15(Rm) || is13or15(Rd) || _4BIT(encoding_high) != _4BIT(encoding_low))
                         {
@@ -4182,10 +4174,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Signed Extend Halfword SXTH on page A7 - 415 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::SXTH;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
-                            instr.shift_type = ShiftType::ROR;
+                            instr.name         = Mnemonic::SXTH;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
+                            instr.shift_type   = ShiftType::ROR;
                             instr.shift_amount = _2BIT(encoding_low >> 4) << 3;
                             instr.operand_type = OperandType::RR;
                             if (_1BIT(encoding_low >> 6) != 0)
@@ -4210,10 +4202,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Unsigned Extend Halfword UXTH on page A7 - 454 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::UXTH;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
-                            instr.shift_type = ShiftType::ROR;
+                            instr.name         = Mnemonic::UXTH;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
+                            instr.shift_type   = ShiftType::ROR;
                             instr.shift_amount = _2BIT(encoding_low >> 4) << 3;
                             instr.operand_type = OperandType::RR;
                             if (_1BIT(encoding_low >> 6) != 0)
@@ -4264,10 +4256,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Signed Extend Byte SXTB on page A7 - 413 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::SXTB;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
-                            instr.shift_type = ShiftType::ROR;
+                            instr.name         = Mnemonic::SXTB;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
+                            instr.shift_type   = ShiftType::ROR;
                             instr.shift_amount = _2BIT(encoding_low >> 4) << 3;
                             instr.operand_type = OperandType::RR;
                             if (_1BIT(encoding_low >> 6) != 0)
@@ -4292,10 +4284,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Unsigned Extend Byte UXTB on page A7 - 452 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::UXTB;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rm = (Register)_4BIT(encoding_low);
-                            instr.shift_type = ShiftType::ROR;
+                            instr.name         = Mnemonic::UXTB;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
+                            instr.shift_type   = ShiftType::ROR;
                             instr.shift_amount = _2BIT(encoding_low >> 4) << 3;
                             instr.operand_type = OperandType::RR;
                             if (_1BIT(encoding_low >> 6) != 0)
@@ -4311,12 +4303,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     }
                 }
             }
-            else if (_4BIT(op2 >> 3) == 0b0110) // 0b0110xxx
+            else if (_4BIT(op2 >> 3) == 0b0110)    // 0b0110xxx
             {
                 // Multiply, multiply accumulate, and absolute difference on page A5 - 156
 
-                op1 = _3BIT(encoding_high >> 4);
-                op2 = _2BIT(encoding_low >> 4);
+                op1   = _3BIT(encoding_high >> 4);
+                op2   = _2BIT(encoding_low >> 4);
                 u8 Ra = encoding_low >> 12;
 
                 if (op1 == 0b000)
@@ -4327,11 +4319,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Multiply Accumulate MLA on page A7 - 289 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::MLA;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rn = (Register)_4BIT(encoding_high);
-                            instr.Rm = (Register)_4BIT(encoding_low);
-                            instr.Ra = (Register)_4BIT(encoding_low >> 12);
+                            instr.name         = Mnemonic::MLA;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
+                            instr.Ra           = (Register)_4BIT(encoding_low >> 12);
                             instr.operand_type = OperandType::RRRR;
                             if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn) || is13(Ra))
                             {
@@ -4343,10 +4335,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                         {
                             // Multiply MUL on page A7 - 302 All
                             REQUIRE_ARCH(Architecture::ARMv7M);
-                            instr.name = Mnemonic::MUL;
-                            instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                            instr.Rn = (Register)_4BIT(encoding_high);
-                            instr.Rm = (Register)_4BIT(encoding_low);
+                            instr.name         = Mnemonic::MUL;
+                            instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                            instr.Rn           = (Register)_4BIT(encoding_high);
+                            instr.Rm           = (Register)_4BIT(encoding_low);
                             instr.operand_type = OperandType::RRR;
                             if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn))
                             {
@@ -4359,11 +4351,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Multiply and Subtract MLS on page A7 - 290 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::MLS;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
-                        instr.Ra = (Register)_4BIT(encoding_low >> 12);
+                        instr.name         = Mnemonic::MLS;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.Rm           = (Register)_4BIT(encoding_low);
+                        instr.Ra           = (Register)_4BIT(encoding_low >> 12);
                         instr.operand_type = OperandType::RRRR;
                         if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn) || is13or15(Ra))
                         {
@@ -4456,7 +4448,7 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     }
                 }
             }
-            else if (_4BIT(op2 >> 3) == 0b0111) // 0b0111xxx
+            else if (_4BIT(op2 >> 3) == 0b0111)    // 0b0111xxx
             {
                 // Long multiply, long multiply accumulate, and divide on page A5 - 156
 
@@ -4467,11 +4459,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Signed Multiply Long SMULL on page A7 - 372 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::SMULL;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);  // RdHi
-                    instr.Ra = (Register)_4BIT(encoding_low >> 12); // RdLo
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
+                    instr.name         = Mnemonic::SMULL;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);     // RdHi
+                    instr.Ra           = (Register)_4BIT(encoding_low >> 12);    // RdLo
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
                     instr.operand_type = OperandType::RRRR;
                     if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn) || is13or15(Ra) || instr.Ra == instr.Rd)
                     {
@@ -4483,10 +4475,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Signed Divide SDIV on page A7 - 350 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::SDIV;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
+                    instr.name         = Mnemonic::SDIV;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
                     instr.operand_type = OperandType::RRR;
                     if (_4BIT(encoding_low >> 12) != 0b1111)
                     {
@@ -4502,11 +4494,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Unsigned Multiply Long UMULL on page A7 - 435 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::UMULL;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);  // RdHi
-                    instr.Ra = (Register)_4BIT(encoding_low >> 12); // RdLo
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
+                    instr.name         = Mnemonic::UMULL;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);     // RdHi
+                    instr.Ra           = (Register)_4BIT(encoding_low >> 12);    // RdLo
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
                     instr.operand_type = OperandType::RRRR;
                     if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn) || is13or15(Ra) || instr.Ra == instr.Rd)
                     {
@@ -4518,10 +4510,10 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                 {
                     // Unsigned Divide UDIV on page A7 - 426 All
                     REQUIRE_ARCH(Architecture::ARMv7M);
-                    instr.name = Mnemonic::UDIV;
-                    instr.Rd = (Register)_4BIT(encoding_low >> 8);
-                    instr.Rn = (Register)_4BIT(encoding_high);
-                    instr.Rm = (Register)_4BIT(encoding_low);
+                    instr.name         = Mnemonic::UDIV;
+                    instr.Rd           = (Register)_4BIT(encoding_low >> 8);
+                    instr.Rn           = (Register)_4BIT(encoding_high);
+                    instr.Rm           = (Register)_4BIT(encoding_low);
                     instr.operand_type = OperandType::RRR;
                     if (_4BIT(encoding_low >> 12) != 0b1111)
                     {
@@ -4539,11 +4531,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Signed Multiply Accumulate Long SMLAL on page A7 - 361 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::SMLAL;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);  // RdHi
-                        instr.Ra = (Register)_4BIT(encoding_low >> 12); // RdLo
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name         = Mnemonic::SMLAL;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);     // RdHi
+                        instr.Ra           = (Register)_4BIT(encoding_low >> 12);    // RdLo
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.Rm           = (Register)_4BIT(encoding_low);
                         instr.operand_type = OperandType::RRRR;
                         if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn) || is13or15(Ra))
                         {
@@ -4573,11 +4565,11 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
                     {
                         // Unsigned Multiply Accumulate Long UMLAL on page A7 - 434 All
                         REQUIRE_ARCH(Architecture::ARMv7M);
-                        instr.name = Mnemonic::UMLAL;
-                        instr.Rd = (Register)_4BIT(encoding_low >> 8);  // RdHi
-                        instr.Ra = (Register)_4BIT(encoding_low >> 12); // RdLo
-                        instr.Rn = (Register)_4BIT(encoding_high);
-                        instr.Rm = (Register)_4BIT(encoding_low);
+                        instr.name         = Mnemonic::UMLAL;
+                        instr.Rd           = (Register)_4BIT(encoding_low >> 8);     // RdHi
+                        instr.Ra           = (Register)_4BIT(encoding_low >> 12);    // RdLo
+                        instr.Rn           = (Register)_4BIT(encoding_high);
+                        instr.Rm           = (Register)_4BIT(encoding_low);
                         instr.operand_type = OperandType::RRRR;
                         if (is13or15(Rm) || is13or15(Rd) || is13or15(Rn) || is13or15(Ra))
                         {
@@ -4594,12 +4586,12 @@ std::pair<ReturnCode, Instruction> InstructionDecoder::decode_instruction(u32 ad
             }
         }
 
-        if ((op1 == 0b01 || op1 == 0b11) && _1BIT(op2 >> 6) == 1) // 0b1xxxxxx
+        if ((op1 == 0b01 || op1 == 0b11) && _1BIT(op2 >> 6) == 1)    // 0b1xxxxxx
         {
             // Coprocessor instructions on page A5 - 158
 
             op1 = _6BIT(encoding_high >> 4);
-            op = _1BIT(encoding_low >> 4);
+            op  = _1BIT(encoding_low >> 4);
 
             if (_1BIT(op1 >> 5) == 0 && _1BIT(op1) == 0 && !(_3BIT(op1 >> 3) == 0 && _1BIT(op1 >> 1) == 0))
             {
