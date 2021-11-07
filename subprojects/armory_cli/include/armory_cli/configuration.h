@@ -18,10 +18,9 @@ namespace armory_cli
         armory::MemoryRange ram;
         u32 start_address;
         std::vector<CodeSection> binary;
-        std::unordered_map<u32, std::string> halt_address_symbols;
-        std::unordered_map<std::string, u32> halt_addresses;
-        std::unordered_map<u32, std::string> symbols;
-        std::unordered_map<std::string, u32> symbol_addresses;
+        std::vector<u32> halt_addresses;
+        std::vector<u32> symbol_addresses;
+        std::unordered_map<u32, std::string> symbol_names;
 
         armory::Context faulting_context;
         u32 num_threads;

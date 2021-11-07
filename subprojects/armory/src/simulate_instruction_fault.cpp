@@ -84,9 +84,7 @@ void FaultSimulator::simulate_instruction_fault(ThreadContext& thread_ctx, u32 r
     {
         if (fault_model_index == 0)
         {
-            std::lock_guard<std::mutex> lock(m_progress_mutex);
-            current_index = m_thread_progress;
-            m_thread_progress++;
+            current_index = m_thread_progress++;
         }
         else
         {
@@ -100,13 +98,7 @@ void FaultSimulator::simulate_instruction_fault(ThreadContext& thread_ctx, u32 r
 
         if (m_print_progress && fault_model_index == 0)
         {
-            double new_progress = std::round(100.0 * (current_index + 1.0) / num_fault_addresses);
-            std::lock_guard<std::mutex> lock(m_progress_mutex);
-            if (new_progress != m_progress)
-            {
-                m_progress = new_progress;
-                print_progress();
-            }
+            update_progress(std::round(100.0 * (current_index + 1.0) / num_fault_addresses));
         }
 
         thread_ctx.snapshots[fault_model_index]->restore();
@@ -273,9 +265,7 @@ void FaultSimulator::simulate_permanent_instruction_fault(ThreadContext& thread_
     {
         if (fault_model_index == 0)
         {
-            std::lock_guard<std::mutex> lock(m_progress_mutex);
-            current_index = m_thread_progress;
-            m_thread_progress++;
+            current_index = m_thread_progress++;
         }
         else
         {
@@ -289,13 +279,7 @@ void FaultSimulator::simulate_permanent_instruction_fault(ThreadContext& thread_
 
         if (m_print_progress && fault_model_index == 0)
         {
-            double new_progress = std::round(100.0 * (current_index + 1.0) / num_fault_addresses);
-            std::lock_guard<std::mutex> lock(m_progress_mutex);
-            if (new_progress != m_progress)
-            {
-                m_progress = new_progress;
-                print_progress();
-            }
+            update_progress(std::round(100.0 * (current_index + 1.0) / num_fault_addresses));
         }
 
         auto [fault_address, fault_instr_size] = m_all_instructions.at(current_index);

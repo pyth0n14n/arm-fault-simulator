@@ -97,9 +97,7 @@ void FaultSimulator::simulate_register_fault(ThreadContext& thread_ctx, u32 recu
     {
         if (fault_model_index == 0)
         {
-            std::lock_guard<std::mutex> lock(m_progress_mutex);
-            current_index = m_thread_progress;
-            m_thread_progress++;
+            current_index = m_thread_progress++;
         }
         else
         {
@@ -118,13 +116,7 @@ void FaultSimulator::simulate_register_fault(ThreadContext& thread_ctx, u32 recu
 
         if (m_print_progress && fault_model_index == 0)
         {
-            double new_progress = std::round(100.0 * (current_index + 1.0) / instruction_count);
-            std::lock_guard<std::mutex> lock(m_progress_mutex);
-            if (new_progress != m_progress)
-            {
-                m_progress = new_progress;
-                print_progress();
-            }
+            update_progress(std::round(100.0 * (current_index + 1.0) / instruction_count));
         }
 
         thread_ctx.snapshots[fault_model_index]->restore();
@@ -330,9 +322,7 @@ void FaultSimulator::simulate_permanent_register_fault(ThreadContext& thread_ctx
     {
         if (fault_model_index == 0)
         {
-            std::lock_guard<std::mutex> lock(m_progress_mutex);
-            current_index = m_thread_progress;
-            m_thread_progress++;
+            current_index = m_thread_progress++;
         }
         else
         {
@@ -346,13 +336,7 @@ void FaultSimulator::simulate_permanent_register_fault(ThreadContext& thread_ctx
 
         if (m_print_progress && fault_model_index == 0)
         {
-            double new_progress = std::round(100.0 * (current_index + 1.0) / register_count);
-            std::lock_guard<std::mutex> lock(m_progress_mutex);
-            if (new_progress != m_progress)
-            {
-                m_progress = new_progress;
-                print_progress();
-            }
+            update_progress(std::round(100.0 * (current_index + 1.0) / register_count));
         }
 
         auto current_reg = read_registers[current_index];

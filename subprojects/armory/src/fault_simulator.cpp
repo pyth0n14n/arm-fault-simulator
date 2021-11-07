@@ -360,7 +360,21 @@ void FaultSimulator::detect_end_of_execution(Emulator& emu, u32 address, u32 ins
 
 void FaultSimulator::print_progress()
 {
+    std::scoped_lock _(m_print_mutex);
     std::cerr << "\r" << m_progress << "% (" << m_active_thread_count << " active threads)   " << std::flush;
+}
+
+void FaultSimulator::update_progress(u32 new_progress)
+{
+    new_progress      = std::clamp(new_progress, (u32)0, (u32)100);
+    u32 current_value = m_progress;
+    if (new_progress > current_value)
+    {
+        if (m_progress.compare_exchange_weak(current_value, new_progress))
+        {
+            print_progress();
+        }
+    }
 }
 
 void FaultSimulator::simulate(const Emulator& main_emulator)
@@ -369,7 +383,6 @@ void FaultSimulator::simulate(const Emulator& main_emulator)
 
     if (m_print_progress)
     {
-        std::lock_guard<std::mutex> lock(m_progress_mutex);
         m_active_thread_count++;
         print_progress();
     }
@@ -391,13 +404,12 @@ void FaultSimulator::simulate(const Emulator& main_emulator)
 
     if (m_print_progress)
     {
-        std::lock_guard<std::mutex> lock(m_progress_mutex);
         m_active_thread_count--;
         print_progress();
     }
 
     {
-        std::lock_guard<std::mutex> lock(m_progress_mutex);
+        std::scoped_lock _(m_synch_mutex);
         m_new_exploitable_faults.insert(m_new_exploitable_faults.end(), thread_ctx.new_faults.begin(), thread_ctx.new_faults.end());
         m_num_fault_injections += thread_ctx.num_fault_injections;
     }

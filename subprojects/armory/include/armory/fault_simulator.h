@@ -8,13 +8,13 @@
 #include <deque>
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <set>
-#include <shared_mutex>
 #include <string>
 #include <thread>
 #include <tuple>
 #include <vector>
+#include <atomic>
+#include <mutex>
 
 namespace armory
 {
@@ -102,6 +102,7 @@ namespace armory
         void simulate_permanent_register_fault(ThreadContext& thread_ctx, u32 recursion_data, u32 order, u32 remaining_cycles, const FaultCombination& current_chain);
         void simulate_register_fault(ThreadContext& thread_ctx, u32 recursion_data, u32 order, u32 remaining_cycles, const FaultCombination& current_chain);
 
+        void update_progress(u32 new_progress);
         void print_progress();
 
         bool is_fault_redundant(const FaultCombination& c);
@@ -111,13 +112,14 @@ namespace armory
         std::vector<std::pair<u32, u8>> m_all_instructions;
 
         bool m_print_progress;
-        double m_progress;
+        std::atomic<u32> m_progress;
+        std::mutex m_print_mutex;
 
         u32 m_num_threads;
-        u32 m_active_thread_count;
+        std::atomic<u32> m_active_thread_count;
 
-        std::mutex m_progress_mutex;
-        u32 m_thread_progress;
+        std::atomic<u32> m_thread_progress;
+        std::mutex m_synch_mutex;
 
         std::unordered_map<std::size_t, std::vector<FaultCombination>> m_known_exploitable_faults;
         std::vector<size_t> m_known_exploitable_fault_hashes;

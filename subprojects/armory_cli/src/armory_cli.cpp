@@ -194,18 +194,18 @@ namespace armory_cli
             }
             else if (args[i] == "--halt")
             {
-                auto symbol                       = args[++i];
-                auto addr                         = to_int(args[++i]);
-                config.halt_address_symbols[addr] = symbol;
-                config.halt_addresses[symbol]     = addr;
+                auto symbol               = args[++i];
+                auto addr                 = to_int(args[++i]);
+                config.symbol_names[addr] = symbol;
+                config.halt_addresses.push_back(addr);
                 config.faulting_context.halting_points.push_back(addr);
             }
             else if (args[i] == "--symbol")
             {
-                auto symbol                     = args[++i];
-                auto addr                       = to_int(args[++i]);
-                config.symbols[addr]            = symbol;
-                config.symbol_addresses[symbol] = addr;
+                auto symbol               = args[++i];
+                auto addr                 = to_int(args[++i]);
+                config.symbol_names[addr] = symbol;
+                config.symbol_addresses.push_back(addr);
             }
             else if (args[i] == "--section")
             {
