@@ -1,11 +1,11 @@
-#include "fault_simulator/fault_simulator.h"
+#include "armory_cli/armory_cli.h"
 
 #include "armory/fault_simulator.h"
 #include "armory/fault_tracer.h"
-#include "fault_simulator/configuration.h"
-#include "fault_simulator/fault_models.h"
-#include "fault_simulator/fault_printing.h"
-#include "fault_simulator/termcolor.h"
+#include "armory_cli/configuration.h"
+#include "armory_cli/fault_models.h"
+#include "armory_cli/fault_printing.h"
+#include "armory_cli/termcolor.h"
 
 #include <chrono>
 #include <cstring>
@@ -14,7 +14,7 @@
 #include <sstream>
 #include <tuple>
 
-namespace fault_simulator
+namespace armory_cli
 {
     using namespace armory;
 
@@ -264,4 +264,4 @@ namespace fault_simulator
 
         return config;
     }
-}    // namespace fault_simulator
+}    // namespace armory_cli

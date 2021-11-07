@@ -1,4 +1,4 @@
-#include "fault_simulator/fault_models.h"
+#include "armory_cli/fault_models.h"
 
 #include <cstring>
 
@@ -34,7 +34,7 @@ namespace fault_models
         {
             if (f.instr_size == 4)
             {
-                // 0x‭F3AF8000‬ is a 32-bit thumb nop
+                // 0xF3AF8000 is a 32-bit thumb nop
                 f.manipulated_instruction[0] = 0xaf;
                 f.manipulated_instruction[1] = 0xf3;
                 f.manipulated_instruction[2] = 0x00;

@@ -2,7 +2,7 @@
 
 #include "armory/context.h"
 
-namespace fault_simulator
+namespace armory_cli
 {
     struct CodeSection
     {
@@ -26,4 +26,4 @@ namespace fault_simulator
         armory::Context faulting_context;
         u32 num_threads;
     };
-}    // namespace fault_simulator
+}    // namespace armory_cli

@@ -4,10 +4,10 @@ project('ARMORY_EXAMPLE', 'cpp',
 
 message(get_option('buildtype'), 'build')
 
-libfault_simulator_dep = subproject('fault_simulator').get_variable('libfault_simulator_dep')
+libarmory_cli_dep = subproject('armory_cli').get_variable('libarmory_cli_dep')
 
 executable('armory_example',
     sources: files('src/main.cpp'),
     include_directories : include_directories('include'),
-    dependencies: libfault_simulator_dep)
+    dependencies: libarmory_cli_dep)
 

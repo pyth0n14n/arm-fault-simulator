@@ -1,13 +1,13 @@
-#include "fault_simulator/fault_printing.h"
+#include "armory_cli/fault_printing.h"
 
-#include "fault_simulator/termcolor.h"
+#include "armory_cli/termcolor.h"
 
 #include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
 
-namespace fault_simulator
+namespace armory_cli
 {
     static std::string to_hex(u32 x, u32 padding)
     {
@@ -156,4 +156,4 @@ namespace fault_simulator
 
         std::cout << std::endl;
     }
-}    // namespace fault_simulator
+}    // namespace armory_cli
