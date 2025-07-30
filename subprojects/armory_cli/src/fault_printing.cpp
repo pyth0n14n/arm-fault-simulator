@@ -148,6 +148,7 @@ namespace armory_cli
         {
             std::cout << " | position=" << f.fault_model_iteration;
         }
+        std::cout << " | addr=" << to_hex(f.address, 8);
 
         if (!f.model->is_permanent())
         {

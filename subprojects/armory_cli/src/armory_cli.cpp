@@ -26,9 +26,9 @@ namespace armory_cli
         return f;
     }
 
-    RegisterFault build_fault(const RegisterFaultModel* model, u32 fault_model_iteration, u32 time, Register reg)
+    RegisterFault build_fault(const RegisterFaultModel* model, u32 fault_model_iteration, u32 time, u32 address, Register reg)
     {
-        RegisterFault f(model, time, fault_model_iteration);
+        RegisterFault f(model, time, fault_model_iteration, address);
         f.reg = reg;
         return f;
     }

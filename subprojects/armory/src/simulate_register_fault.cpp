@@ -145,6 +145,7 @@ void FaultSimulator::simulate_register_fault(ThreadContext& thread_ctx, u32 recu
         thread_ctx.snapshots[fault_model_index]->backup();
 
         auto now = emu.get_time();
+        u32 pc = emu.read_register(Register::PC) - 4;
 
         for (auto reg : read_registers[current_index])
         {
@@ -186,7 +187,7 @@ void FaultSimulator::simulate_register_fault(ThreadContext& thread_ctx, u32 recu
             {
                 iteration++;
 
-                RegisterFault fault(active_model, now, iteration);
+                RegisterFault fault(active_model, now, iteration, pc);
                 fault.reg            = reg;
                 fault.original_value = original_value;
 
@@ -317,6 +318,7 @@ void FaultSimulator::simulate_permanent_register_fault(ThreadContext& thread_ctx
     u32 current_index  = recursion_data - 1;
 
     auto time = emu.get_time();
+    u32 pc = emu.read_register(Register::PC) - 4;
 
     while (true)
     {
@@ -363,7 +365,7 @@ void FaultSimulator::simulate_permanent_register_fault(ThreadContext& thread_ctx
         {
             iteration++;
 
-            RegisterFault fault(active_model, time, iteration);
+            RegisterFault fault(active_model, time, iteration, pc);
             fault.reg            = current_reg;
             fault.original_value = original_value;
 

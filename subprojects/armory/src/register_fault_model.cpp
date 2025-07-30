@@ -1,4 +1,6 @@
 #include "armory/register_fault_model.h"
+#include "armory/fault_simulator.h"
+#include "armory/context.h"
 
 namespace armory
 {
@@ -39,9 +41,10 @@ namespace armory
     // ########################################################
     // ########################################################
 
-    RegisterFault::RegisterFault(const RegisterFaultModel* _model, u32 _time, u32 _fault_model_iteration) : Fault(_time, _fault_model_iteration)
+    RegisterFault::RegisterFault(const RegisterFaultModel* _model, u32 _time, u32 _fault_model_iteration, u32 _pc) : Fault(_time, _fault_model_iteration)
     {
         this->model = _model;
+        this->address = _pc;
     }
 
     bool RegisterFault::operator<(const RegisterFault& other) const

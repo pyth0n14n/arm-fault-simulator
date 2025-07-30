@@ -50,13 +50,14 @@ namespace armory
 
     struct RegisterFault : public Fault
     {
-        RegisterFault(const RegisterFaultModel* model, u32 time, u32 fault_model_iteration);
+        RegisterFault(const RegisterFaultModel* model, u32 time, u32 fault_model_iteration, u32 pc);
         ~RegisterFault() = default;
 
         const RegisterFaultModel* model;
         Register reg;
         u32 original_value;
         u32 manipulated_value;
+        u32 address;
 
         bool operator==(const RegisterFault& other) const;
         bool operator!=(const RegisterFault& other) const;
